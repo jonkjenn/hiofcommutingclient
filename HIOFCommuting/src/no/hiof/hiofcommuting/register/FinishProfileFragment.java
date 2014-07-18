@@ -269,7 +269,7 @@ public class FinishProfileFragment extends Fragment {
                 startingYear = String.valueOf(startingyearSpinner.getSelectedItem());
                 String activity = getActivity().toString();
 
-                if (activity.startsWith("no.hiof.hiofcommuting.MainActivity")) {
+                if (activity.startsWith("no.hiof.hiofcommuting.hiofcommuting.MainActivity")) {
                     facebookUser = true;
                     Session session;
                     session = ((MainActivity) getActivity()).getFacebookSession();
