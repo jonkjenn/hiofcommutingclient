@@ -4,7 +4,8 @@
     <string name="app_name">HIOFCommuting</string>
     <string name="action_settings">Innstillinger</string>
     <string name="hello_world">Hello world!</string>
-    <string name="fbid">1397782713810671</string>
+    <!--  <string name="fbid">1397782713810671</string>-->
+    <string name="fbid">818697398153919</string>
     <string name="get_started">To get started, log in using Facebook</string>
     <string name="settings">Settings</string>
     <string name="fblogin">Facebook test</string>
