@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#ffffff"
+    android:clickable="true" >
+
+    <Button
+        android:id="@+id/button_filter_users"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:onClick="commitAndHideUserFilter"
+        android:text="@string/button_ok" />
+
+    <CheckBox
+        android:id="@+id/checkbox_filter_institution"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentTop="true"
+        android:text="Samme institusjon" />
+
+    <CheckBox
+        android:id="@+id/checkbox_filter_campus"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_below="@+id/checkbox_filter_institution"
+        android:text="Samme campus" />
+
+    <CheckBox
+        android:id="@+id/checkbox_filter_department"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_below="@+id/checkbox_filter_campus"
+        android:text="Samme studieavdeling" />
+
+    <CheckBox
+        android:id="@+id/checkbox_filter_study"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_below="@+id/checkbox_filter_department"
+        android:text="Samme studie" />
+
+    <CheckBox
+        android:id="@+id/checkbox_filter_startingyear"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_below="@+id/checkbox_filter_study"
+        android:text="Samme kull" />
+
+    <CheckBox
+        android:id="@+id/checkbox_filter_car"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_below="@+id/checkbox_filter_startingyear"
+        android:text="Må disponere bil" />
+
+    <CheckBox
+        android:id="@+id/checkbox_filter_distance"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_below="@+id/checkbox_filter_car"
+        android:text="Max avstand fra min adresse:" />
+
+    <NumberPicker
+        android:id="@+id/numberpicker_filter_distance"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
+        android:layout_below="@+id/checkbox_filter_car" />
+
+</RelativeLayout>
