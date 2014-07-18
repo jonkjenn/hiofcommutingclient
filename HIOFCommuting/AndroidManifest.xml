@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.bachelor.hiofcommuting"
+    package="no.hiof.hiofcommuting"
     android:versionCode="1"
     android:versionName="1.0" >
 
@@ -34,7 +34,7 @@
             android:value="@integer/google_play_services_version" />
 
         <activity
-            android:name="com.bachelor.hiofcommuting.MainActivity"
+            android:name="no.hiof.hiofcommuting.hiofcommuting.MainActivity"
             android:label="@string/app_name" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -47,24 +47,24 @@
             android:name="com.facebook.sdk.ApplicationId"
             android:value="@string/fbid" />
 
-        <activity android:name="com.facebook.LoginActivity" >
-        </activity>
+        <!--  <activity android:name="com.facebook.LoginActivity" >
+        </activity>-->
         <!-- Goolge Maps API Key -->
         <meta-data
             android:name="com.google.android.maps.v2.API_KEY"
-            android:value="AIzaSyBNfYtTyV_6Db5ovLIzoxUesS-NWdVVoVg" />
+            android:value="AIzaSyDlQetmlGE4njf3cg51X-_wZb0Au_Lp10s" />
 
-        <activity android:name="bachelor.register.EmailLoginActivity" >
+        <activity android:name="no.hiof.hiofcommuting.register.EmailLoginActivity" >
         </activity>
-        <activity android:name="bachelor.tab.TabListenerActivity" >
+        <activity android:name="no.hiof.hiofcommuting.tab.TabListenerActivity" >
         </activity>
         <activity
-            android:name="com.bachelor.hiofcommuting.UserInformationActivity"
+            android:name="no.hiof.hiofcommuting.hiofcommuting.UserInformationActivity"
             android:label="sett inn ->" >
-//@string/title_activity_user_information
+<!--  //@string/title_activity_user_information -->
         </activity>
         <activity
-            android:name="bachelor.chat.ChatActivity"
+            android:name="no.hiof.hiofcommuting.chat.ChatActivity"
             android:windowSoftInputMode="stateAlwaysHidden"
             android:label="@string/title_activity_chat" >
         </activity>

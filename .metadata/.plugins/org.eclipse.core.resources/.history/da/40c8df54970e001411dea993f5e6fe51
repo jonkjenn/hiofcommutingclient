@@ -1,0 +1,42 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    tools:context="com.bachelor.hiofcommuting.ChatActivity$PlaceholderFragment" >
+
+    <ListView
+        android:id="@+id/listview_chat"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:stackFromBottom="true"
+        android:transcriptMode="alwaysScroll"
+        android:divider="@null"
+		android:dividerHeight="0dp"
+		android:clickable="false"
+        android:layout_above="@+id/InnerRelativeLayout">
+    </ListView>
+    
+    <RelativeLayout 
+        android:id="@+id/InnerRelativeLayout"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true" >
+
+	   <Button 
+            android:text="Send" 
+            android:id="@+id/button_chat_sendmessage"
+            android:layout_alignParentRight="true" 
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content">
+        </Button>
+
+        <EditText 
+            android:id="@+id/edittext_chat_input"
+            android:layout_width="fill_parent"
+            android:layout_toLeftOf="@id/button_chat_sendmessage"
+            android:layout_height="wrap_content">
+        </EditText>
+     
+     </RelativeLayout>
+
+</RelativeLayout>
