@@ -15,6 +15,7 @@ import no.hiof.hiofcommuting.objects.Study;
 import no.hiof.hiofcommuting.objects.User;
 import no.hiof.hiofcommuting.util.FileUploader;
 import no.hiof.hiofcommuting.util.UserInputValidator;
+import no.hiof.hiofommuting.database.HandleLogin;
 import no.hiof.hiofommuting.database.HandleUsers;
 import no.hiof.hiofommuting.database.JsonParser;
 
@@ -41,8 +42,8 @@ import android.widget.ImageView;
 import android.widget.Spinner;
 import android.widget.Toast;
 import android.widget.ToggleButton;
-
 import no.hiof.hiofcommuting.R;
+
 import com.facebook.Request;
 import com.facebook.Response;
 import com.facebook.Session;
@@ -80,6 +81,11 @@ public class FinishProfileFragment extends Fragment {
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
+    }
+    
+    @Override
+    public void onStart() {
+    	super.onStart();
         departmentSpinner = (Spinner) getView().findViewById(R.id.departmentSpinner);
         studySpinner = (Spinner) getView().findViewById(R.id.studySpinner);
         startingyearSpinner = (Spinner) getView().findViewById(R.id.startingyearSpinner);
@@ -268,6 +274,9 @@ public class FinishProfileFragment extends Fragment {
                 study = String.valueOf(studySpinner.getSelectedItem());
                 startingYear = String.valueOf(startingyearSpinner.getSelectedItem());
                 String activity = getActivity().toString();
+                
+                /*address = "båstadlundveien 6a";
+                postalCode = "1781";*/
 
                 if (activity.startsWith("no.hiof.hiofcommuting.hiofcommuting.MainActivity")) {
                     facebookUser = true;
@@ -275,7 +284,7 @@ public class FinishProfileFragment extends Fragment {
                     session = ((MainActivity) getActivity()).getFacebookSession();
                     makeMeRequest(session);
                 }
-                if (activity.startsWith("bachelor.register.EmailLoginActivity")) {
+                if (activity.startsWith("no.hiof.hiofcommuting.register.EmailLoginActivity")) {
                     registerData = ((EmailLoginActivity) getActivity()).getRegistrationList();
                 }
 
@@ -450,23 +459,32 @@ public class FinishProfileFragment extends Fragment {
         protected Boolean doInBackground(Void... params) {
             // TODO Auto-generated method stub
             try {
+            	System.out.println("Getting institutions from server");
                 JsonParser jp = new JsonParser();
                 JSONArray jsonInstArr, jsonDepartmentArr, jsonStudArr, jsonUserArr;
-                jsonInstArr = jp.getJsonArray("http://" + MainActivity.SERVER_URL + "/institution.py");
+                System.out.println("Got array");
+                jsonInstArr = jp.getJsonArray("http://" + MainActivity.SERVER_URL + "/institution.py", HandleLogin.getCookie(getActivity()));
                 for (int i = 0; i < jsonInstArr.length(); i++) {
                     institutionObjects.add(new Institution(jsonInstArr.getJSONObject(i)));
                 }
 
-                jsonDepartmentArr = jp.getJsonArray("http://" + MainActivity.SERVER_URL + "/department.py");
+            	System.out.println("Getting departments from server");
+                jsonDepartmentArr = jp.getJsonArray("http://" + MainActivity.SERVER_URL + "/department.py", HandleLogin.getCookie(getActivity()));
+                System.out.println("Got array");
                 for (int i = 0; i < jsonDepartmentArr.length(); i++) {
                     departmentObjects.add(new Department(jsonDepartmentArr.getJSONObject(i)));
                 }
 
-                jsonStudArr = jp.getJsonArray("http://" + MainActivity.SERVER_URL + "/study.py?q=getAllStudies");
+            	System.out.println("Getting studies from server");
+                jsonStudArr = jp.getJsonArray("http://" + MainActivity.SERVER_URL + "/study.py?q=getAllStudies", HandleLogin.getCookie(getActivity()));
+                System.out.println("Got array");
                 for (int i = 0; i < jsonStudArr.length(); i++) {
                     studyObjects.add(new Study(jsonStudArr.getJSONObject(i)));
                 }
-                jsonUserArr = jp.getJsonArray("http://" + MainActivity.SERVER_URL + "/usr.py?q=usr");
+
+            	System.out.println("Getting users from server");
+                jsonUserArr = jp.getJsonArray("http://" + MainActivity.SERVER_URL + "/usr.py?q=usr", HandleLogin.getCookie(getActivity()));
+                System.out.println("Got array");
                 JSONObject lastUserObj = jsonUserArr.getJSONObject(jsonUserArr.length()-1);
                 nextAvailableUserId = lastUserObj.getInt("user_id");
                 nextAvailableUserId++;

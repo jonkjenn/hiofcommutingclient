@@ -8,24 +8,33 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import no.hiof.hiofcommuting.hiofcommuting.MainActivity;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
+import org.apache.http.client.CookieStore;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.HttpPost;
+import org.apache.http.client.protocol.ClientContext;
+import org.apache.http.cookie.Cookie;
+import org.apache.http.impl.client.BasicCookieStore;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.message.BasicNameValuePair;
+import org.apache.http.protocol.BasicHttpContext;
+import org.apache.http.protocol.HttpContext;
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.text.method.DateTimeKeyListener;
 
 public class HTTPClient {
 
 	public static boolean sent = false;
+	
 
 	public static void post(String operation, int sender, int receiver,
 			String message) {
@@ -81,7 +90,7 @@ public class HTTPClient {
 			}
 		}
 	}
-
+	
 	public static void insertEmailUser(final int studyId,
 			final String firstName, final String surName, final double lat,
 			final double lon, final double distance, final String institution,
@@ -146,7 +155,8 @@ public class HTTPClient {
 		final String URL = "http://" + MainActivity.SERVER_URL + "/regfbusr.py?q=";
 		HttpClient httpClient = new DefaultHttpClient();
 		HttpPost httpPost = new HttpPost(URL);
-
+		
+		
 		String q = "facebookUser";
 		String carString;
 		if (car) {

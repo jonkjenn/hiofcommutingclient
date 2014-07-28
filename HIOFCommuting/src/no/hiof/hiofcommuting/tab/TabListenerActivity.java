@@ -6,6 +6,7 @@ import no.hiof.hiofcommuting.hiofcommuting.ChatService;
 import no.hiof.hiofcommuting.hiofcommuting.MainActivity;
 import no.hiof.hiofcommuting.objects.Filter;
 import no.hiof.hiofcommuting.objects.User;
+import no.hiof.hiofommuting.database.HandleLogin;
 import no.hiof.hiofommuting.database.HandleUsers;
 import android.app.ActionBar;
 import android.app.ActionBar.Tab;
@@ -24,8 +25,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CheckBox;
 import android.widget.NumberPicker;
-
 import no.hiof.hiofcommuting.R;
+
 import com.facebook.Session;
 
 public class TabListenerActivity extends FragmentActivity implements
@@ -239,6 +240,9 @@ public class TabListenerActivity extends FragmentActivity implements
 	}
 
 	private void performLogout() {
+		
+		HandleLogin.deleteCookie(this);
+
 		if (session != null) {
 			try {
 				session = Session.getActiveSession();

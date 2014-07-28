@@ -5,20 +5,30 @@ import java.util.Random;
 import no.hiof.hiofcommuting.hiofcommuting.MainActivity;
 import no.hiof.hiofcommuting.objects.User;
 
+import org.apache.http.cookie.Cookie;
+import org.apache.http.impl.cookie.BasicClientCookie;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-public class HandleLogin {
+import android.content.Context;
+import android.content.SharedPreferences;
+import android.text.format.DateFormat;
 
-	public static boolean checkUnAndPw(String email, String password) {
+public class HandleLogin {
+	
+	public static Cookie cookie;
+
+	public static boolean checkUnAndPw(String email, String password, Context context) {
 		/*
 		Using -100 as error code for wrong/misspelled/missing email address.
   		Using -200 as error code for wrong/misspelled/missing password.
 		 */
 		JsonParser jp = new JsonParser();
+		jp.saveCookie = true;
 		JSONArray emailAndPw;
-		emailAndPw = jp.getJsonArray("http://" + MainActivity.SERVER_URL+ "/email.py?q=login&email=" + email + "&pass=" + password);
+		emailAndPw = jp.getJsonArray("http://" + MainActivity.SERVER_URL+ "/email.py?q=login&email=" + email + "&pass=" + password, HandleLogin.getCookie(context));
+		cookie = jp.cookie;
 		
 		try {
 			JSONObject emailAndPwObj = (JSONObject) emailAndPw.get(0);
@@ -36,11 +46,11 @@ public class HandleLogin {
 		}
 	}
 
-	public static User getCurrentEmailUserLoggedIn(String email){
+	public static User getCurrentEmailUserLoggedIn(String email, Context context){
 		User userLoggedIn = null;
 		JsonParser jp = new JsonParser();
 		JSONArray emailUser;
-		emailUser = jp.getJsonArray("http://" + MainActivity.SERVER_URL + "/usr.py?q=emailUser&email=" + email);
+		emailUser = jp.getJsonArray("http://" + MainActivity.SERVER_URL + "/usr.py?q=emailUser&email=" + email, getCookie(context));
 		
 		try {
 			JSONObject obj = (JSONObject) emailUser.get(0);
@@ -137,5 +147,28 @@ public class HandleLogin {
 		return false;
 	}
 	
+	public static Cookie getCookie(Context context)
+	{
+			SharedPreferences prefs = context.getSharedPreferences("hccook", Context.MODE_PRIVATE);
+			
+			if(!prefs.contains("name"))
+			{
+				return null;
+			}
+			
+			BasicClientCookie c = new BasicClientCookie(prefs.getString("name", ""), prefs.getString("value",""));
+			c.setDomain(prefs.getString("domain", ""));
+			c.setPath(prefs.getString("path", ""));
+			c.setVersion(prefs.getInt("version", 0));
+			return c;
+	}
+	
+	public static void deleteCookie(Context context)
+	{
+			SharedPreferences prefs = context.getSharedPreferences("hccook", Context.MODE_PRIVATE);
+			SharedPreferences.Editor se = prefs.edit();
+			se.clear();
+			se.apply();
+	}
 	
 }

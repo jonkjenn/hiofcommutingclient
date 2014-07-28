@@ -88,7 +88,7 @@ public class TabInboxFragment extends Fragment {
                         (User.userList != null && ImageHandler.isUserProfilePictureSet() && Filter.isFilterSet && User.isUserListFiltered)) {
                 	Filter f = null;
                     User.userList = HandleUsers.getAllUsers(getActivity(), userLoggedIn, f);        
-                	newMessage = HandleMessages.getInbox(userLoggedIn.getUserid(), User.userList);
+                	newMessage = HandleMessages.getInbox(userLoggedIn.getUserid(), User.userList, getActivity());
                 }
                 else {
                 	Filter f = null;
@@ -107,7 +107,7 @@ public class TabInboxFragment extends Fragment {
                         String imagePath = ImageHandler.saveBitmapToCache(getActivity(), bitmap, user.getUserid());
                         user.setImagePath(imagePath);
                     }
-                    newMessage = HandleMessages.getInbox(userLoggedIn.getUserid(), User.userList);
+                    newMessage = HandleMessages.getInbox(userLoggedIn.getUserid(), User.userList, getActivity());
                 }
 
                 if (Filter.isFilterSet)

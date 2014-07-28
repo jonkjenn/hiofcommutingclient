@@ -47,7 +47,7 @@ public class ChatService extends IntentService {
 				}
 				
 				User userLoggedIn = (User)intent.getSerializableExtra("CURRENT_USER");
-				boolean newMessage = HandleMessages.newMessage(userLoggedIn);
+				boolean newMessage = HandleMessages.newMessage(userLoggedIn, getBaseContext());
 				if(newMessage)
 					notifyUser();
 			}

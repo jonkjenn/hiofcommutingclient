@@ -2,12 +2,14 @@ package no.hiof.hiofcommuting.hiofcommuting;
 
 import java.lang.ref.WeakReference;
 
+import no.hiof.hiofcommuting.R;
 import no.hiof.hiofcommuting.objects.User;
 import no.hiof.hiofcommuting.register.EmailLoginActivity;
 import no.hiof.hiofcommuting.util.Util;
 import no.hiof.hiofommuting.database.HandleLogin;
 import no.hiof.hiofommuting.database.JsonParser;
 
+import org.apache.http.cookie.Cookie;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -20,11 +22,9 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
-import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 
-import no.hiof.hiofcommuting.R;
 import com.facebook.Request;
 import com.facebook.Response;
 import com.facebook.Session;
@@ -33,16 +33,18 @@ import com.facebook.UiLifecycleHelper;
 import com.facebook.model.GraphUser;
 
 public class MainActivity extends FragmentActivity {
-	
+
 	private static final int SPLASH = 0;
 	private static final int FINISH = 1;
-	private Fragment[] fragments = new Fragment[2];
+	private Fragment[] fragments = new Fragment[1];
 	private boolean isResumed = false;
 	private MenuItem settings;
 	FragmentManager fm = getSupportFragmentManager();
 	WeakReference<Activity> weakActivity = new WeakReference<Activity>(this);
 	private String fbId;
-	public static String SERVER_URL = "192.168.1.4:8000/cgi-bin";
+	 public static String SERVER_URL = "192.168.1.4:8888";
+	//public static String SERVER_URL = "192.168.0.104:8888";
+	public static Cookie cookie;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -53,22 +55,24 @@ public class MainActivity extends FragmentActivity {
 
 		setContentView(R.layout.activity_main);
 		fragments[SPLASH] = fm.findFragmentById(R.id.splashFragment);
-		fragments[FINISH] = fm.findFragmentById(R.id.finishProfileFragment);
+		//fragments[FINISH] = fm.findFragmentById(R.id.finishProfileFragment);
 
 		FragmentTransaction transaction = fm.beginTransaction();
 		for (int i = 0; i < fragments.length; i++) {
 			transaction.hide(fragments[i]);
 		}
 		transaction.commit();
+
 	}
-	
+
 	@Override
-	public void onBackPressed() {	        
-	    if(fragments[FINISH].isVisible()) {
-	    	Util.showFragment(SPLASH, fm, fragments, "HIOFCommuting", weakActivity);
-	    	Session session = Session.getActiveSession();
+	public void onBackPressed() {
+		if (fragments[FINISH].isVisible()) {
+			Util.showFragment(SPLASH, fm, fragments, "HIOFCommuting",
+					weakActivity);
+			Session session = Session.getActiveSession();
 			session.closeAndClearTokenInformation();
-	    } 
+		}
 	}
 
 	@Override
@@ -114,17 +118,18 @@ public class MainActivity extends FragmentActivity {
 			for (int i = 0; i < backStackSize; i++) {
 				manager.popBackStack();
 			}
-			
+
 			if (state.isOpened()) {
 				// If the session state is open:
 				makeMeRequest(session);
-			} else if(state.isClosed()) {
+			} else if (state.isClosed()) {
 				// If the session state is closed:
-				Util.showFragment(SPLASH,fm,fragments, "HIOFCommuting" , weakActivity);
+				Util.showFragment(SPLASH, fm, fragments, "HIOFCommuting",
+						weakActivity);
 			}
 		}
 	}
-	
+
 	public void makeMeRequest(final Session session) {
 		// Make an API call to get user data and define a
 		// new callback to handle the response.
@@ -144,8 +149,7 @@ public class MainActivity extends FragmentActivity {
 				});
 		request.executeAsync();
 	}
-	
-	
+
 	public Session getFacebookSession() {
 		Session session = Session.getActiveSession();
 		return session;
@@ -161,13 +165,22 @@ public class MainActivity extends FragmentActivity {
 		super.onResumeFragments();
 		Session session = Session.getActiveSession();
 
+		Cookie c = HandleLogin.getCookie(this);
+		if (c != null) {
+
+		}
+
 		if (session != null && session.isOpened()) {
 			// if the session is already open,
-			//AUTHENTICATE USER IN OUR DATABASE
+			// AUTHENTICATE USER IN OUR DATABASE
 			makeMeRequest(session);
+		} else if (c != null) {
+			Intent intent = new Intent(this, EmailLoginActivity.class);
+			startActivity(intent);
 		} else {
 			// otherwise present the splash screen
-			Util.showFragment(SPLASH, fm, fragments, "HIOFCommuting", weakActivity);
+			Util.showFragment(SPLASH, fm, fragments, "HIOFCommuting",
+					weakActivity);
 		}
 	}
 
@@ -184,10 +197,13 @@ public class MainActivity extends FragmentActivity {
 
 		@Override
 		protected JSONObject doInBackground(Object... params) {
-			try{
+			try {
+				System.out.println("Her");
 				JsonParser jp = new JsonParser();
 				JSONArray jsonFbArr;
-				jsonFbArr = jp.getJsonArray("http://" + MainActivity.SERVER_URL + "/usr.py?q=fbUserId&fbid=" + fbId);
+				jsonFbArr = jp.getJsonArray("http://" + MainActivity.SERVER_URL
+						+ "/usr.py?q=fbUserId&fbid=" + fbId,
+						HandleLogin.getCookie(MainActivity.this));
 				JSONObject jsonObj = (JSONObject) jsonFbArr.get(0);
 				return jsonObj;
 			} catch (JSONException e) {
@@ -196,20 +212,23 @@ public class MainActivity extends FragmentActivity {
 				return null;
 			}
 		}
-		
+
 		@Override
-		protected void onPostExecute(JSONObject obj){
+		protected void onPostExecute(JSONObject obj) {
 			try {
-				if(obj.getString("user_id").equals("-100")){
-					System.out.println("User er ikke registrert i systemet fra f�r");
-					Util.showFragment(FINISH, fm, fragments, "Fullf�r profil", weakActivity);
-				}
-				else {
-					System.out.println("User ER registrert i systemet fra f�r");
-					User userLoggedIn = HandleLogin.getCurrentFacebookUserLoggedIn(obj);
+				if (obj.getString("user_id").equals("-100")) {
+					System.out
+							.println("User er ikke registrert i systemet fra før");
+					Util.showFragment(FINISH, fm, fragments, "Fullfør profil",
+							weakActivity);
+				} else {
+					System.out.println("User ER registrert i systemet fra før");
+					User userLoggedIn = HandleLogin
+							.getCurrentFacebookUserLoggedIn(obj);
 					System.out.println(userLoggedIn + " er null");
 					Session session = Session.getActiveSession();
-					Intent intent = new Intent(MainActivity.this, no.hiof.hiofcommuting.tab.TabListenerActivity.class);
+					Intent intent = new Intent(MainActivity.this,
+							no.hiof.hiofcommuting.tab.TabListenerActivity.class);
 					intent.putExtra("CURRENT_USER", userLoggedIn);
 					intent.putExtra("FACEBOOK_SESSION", session);
 					startActivity(intent);

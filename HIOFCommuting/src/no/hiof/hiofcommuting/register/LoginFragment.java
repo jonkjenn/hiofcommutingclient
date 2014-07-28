@@ -1,20 +1,15 @@
 package no.hiof.hiofcommuting.register;
 
-import java.util.ArrayList;
-import java.util.List;
-
+import no.hiof.hiofcommuting.R;
 import no.hiof.hiofcommuting.objects.User;
 import no.hiof.hiofommuting.database.HandleLogin;
-import no.hiof.hiofommuting.database.JsonParser;
 
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
+import org.apache.http.cookie.Cookie;
 
-import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -25,8 +20,6 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
-
-import no.hiof.hiofcommuting.R;
 
 public class LoginFragment extends Fragment {
 	TextView response;
@@ -55,6 +48,9 @@ public class LoginFragment extends Fragment {
                 validateUserInput(email, password);
             }
         });
+		
+		
+        new ValidateUser().execute(new String[]{"",""});
 	}
 
 	public void validateUserInput(String email, String password) {
@@ -90,7 +86,7 @@ public class LoginFragment extends Fragment {
 	 */
 
 	
-	private class ValidateUser extends
+	public class ValidateUser extends
 			AsyncTask<String[], Void, Boolean> {
 
 		private ProgressDialog Dialog = new ProgressDialog(getActivity());
@@ -105,13 +101,18 @@ public class LoginFragment extends Fragment {
 
 		@Override
 		protected Boolean doInBackground(String[]... params) {
+			System.out.println("Validating");
 			String[] userInput = params[0];
 			String email = userInput[0];
 			String password = userInput[1];
 
-			Boolean authenticated = HandleLogin.checkUnAndPw(email,password);
+			Boolean authenticated = HandleLogin.checkUnAndPw(email,password, getActivity());
+			if(HandleLogin.cookie != null){
+				saveCookie(HandleLogin.cookie);
+				HandleLogin.cookie = null;
+			}
 			if (authenticated) {
-				userLoggedIn = HandleLogin.getCurrentEmailUserLoggedIn(email);
+				userLoggedIn = HandleLogin.getCurrentEmailUserLoggedIn(email, getActivity());
 				return true;
 			} else {
 				errorMessage = "Feil brukernavn eller passord. " + (--attempts) + " forsøk igjen.";
@@ -131,6 +132,19 @@ public class LoginFragment extends Fragment {
 			}else {
 				Toast.makeText(getActivity(), errorMessage, Toast.LENGTH_SHORT).show();
 			}
+		}
+		
+		private void saveCookie(Cookie c)
+		{
+			SharedPreferences prefs = getActivity().getSharedPreferences("hccook", Context.MODE_PRIVATE);
+			SharedPreferences.Editor editor = prefs.edit();
+			editor.putString("name", c.getName());			
+			editor.putString("value", c.getValue());
+			editor.putString("domain", c.getDomain());
+			editor.putString("expiry", c.getExpiryDate()==null?"":c.getExpiryDate().toString());
+			editor.putString("path", c.getPath());
+			editor.putInt("version", c.getVersion());
+			editor.apply();
 		}
 	}
 }

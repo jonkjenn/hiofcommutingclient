@@ -13,12 +13,14 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import android.content.Context;
+
 public class HandleMessages {
 
     public static int myID;
     public static int partnerID;
 
-	public static List<Conversation> getConversation(User sender, User receiver) {
+	public static List<Conversation> getConversation(User sender, User receiver, Context context) {
 		List<Conversation> chat = new ArrayList<Conversation>();
 		int user_id_sender = 0;
 		int user_id_receiver = 0;
@@ -29,7 +31,7 @@ public class HandleMessages {
 				+ receiver.getUserid();
 
 		try {
-			JSONArray chatArray = new JsonParser().getJsonArray(url);
+			JSONArray chatArray = new JsonParser().getJsonArray(url, HandleLogin.getCookie(context));
 			for (int i = 0; i < chatArray.length(); i++) {
 				JSONObject obj;
 				obj = chatArray.getJSONObject(i);
@@ -65,13 +67,13 @@ public class HandleMessages {
 		return chat;
 	}
 	
-	public static boolean newMessage(User userLoggedIn) {
+	public static boolean newMessage(User userLoggedIn, Context context) {
 
 		String url = "http://" + MainActivity.SERVER_URL + "/hcserv.py?q=newMessages&user_id_receiver="
 				+ userLoggedIn.getUserid();
 
 		//try {
-			JSONArray newMessages = new JsonParser().getJsonArray(url);
+			JSONArray newMessages = new JsonParser().getJsonArray(url, HandleLogin.getCookie(context));
 			if(newMessages == null) {
 				return false;
 			}
@@ -118,12 +120,12 @@ public class HandleMessages {
 		t.start();
 	}
 
-	public static List<Inbox> getInbox(int userid_receiver, List<User> users) {
+	public static List<Inbox> getInbox(int userid_receiver, List<User> users, Context context) {
 		List<Inbox> inbox = new ArrayList<Inbox>();
 
 		String url = "http://" + MainActivity.SERVER_URL + "/hcserv.py?q=inbox&user_id_receiver="
 				+ userid_receiver;
-		JSONArray inboxArray = new JsonParser().getJsonArray(url);
+		JSONArray inboxArray = new JsonParser().getJsonArray(url, HandleLogin.getCookie(context));
 		System.out.println("WORK!!");
 		System.out.println(inboxArray.toString());
 		for (int i = 0; i < inboxArray.length(); i++) {

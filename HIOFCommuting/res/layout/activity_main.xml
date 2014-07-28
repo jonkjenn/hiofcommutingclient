@@ -10,9 +10,9 @@
           android:layout_width="match_parent"
           android:layout_height="match_parent" />
     
-    <fragment android:name="no.hiof.hiofcommuting.register.FinishProfileFragment" 
+    <!-- <fragment android:name="no.hiof.hiofcommuting.register.FinishProfileFragment" 
           android:id="@+id/finishProfileFragment"
           android:layout_width="match_parent"
-          android:layout_height="match_parent" />
+          android:layout_height="match_parent" />-->
     
 </LinearLayout>

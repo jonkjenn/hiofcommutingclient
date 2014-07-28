@@ -26,7 +26,7 @@ public class HandleUsers {
 
 	public static List<User> getAllUsers(Context context, User userLoggedIn, Filter filter) {
 		String urlUser = "http://" + MainActivity.SERVER_URL + "/usr.py?q=allusrs";
-		JSONArray arrayUser = new JsonParser().getJsonArray(urlUser);
+		JSONArray arrayUser = new JsonParser().getJsonArray(urlUser, HandleLogin.getCookie(context));
 		if (userList.isEmpty() || userList.size() == arrayUser.length()) {
 			if(userList.isEmpty())
 				userList.clear();

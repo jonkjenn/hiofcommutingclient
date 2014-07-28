@@ -78,6 +78,13 @@ public class RegisterFragment extends Fragment implements OnClickListener {
                 email = emailEditText.getText().toString().trim();
                 password = passwordEditText.getText().toString().trim();
                 repeatPassword = repeatPasswordEditText.getText().toString().trim();
+                
+                /*
+                firstName = "abc";
+                lastName = "abc";
+                email = "abc@abc.com";
+                password = "qwertyu";
+                repeatPassword = password;*/
 
                 UserInputValidator validator = new UserInputValidator();
 

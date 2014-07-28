@@ -82,7 +82,7 @@ public class ChatFragment extends Fragment{
 			try {
                 HandleMessages.myID = userLoggedIn.getUserid();
                 HandleMessages.partnerID = userToChatWith.getUserid();
-				chat = HandleMessages.getConversation(userLoggedIn, userToChatWith);
+				chat = HandleMessages.getConversation(userLoggedIn, userToChatWith, getActivity());
 				return chat;
 			} catch (Exception e) {
 				return null;
