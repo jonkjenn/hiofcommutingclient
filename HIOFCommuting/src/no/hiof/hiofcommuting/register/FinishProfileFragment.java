@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 
+import no.hiof.hiofcommuting.R;
 import no.hiof.hiofcommuting.hiofcommuting.MainActivity;
 import no.hiof.hiofcommuting.objects.Department;
 import no.hiof.hiofcommuting.objects.Institution;
@@ -19,6 +20,7 @@ import no.hiof.hiofommuting.database.HandleLogin;
 import no.hiof.hiofommuting.database.HandleUsers;
 import no.hiof.hiofommuting.database.JsonParser;
 
+import org.apache.http.cookie.Cookie;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -42,7 +44,6 @@ import android.widget.ImageView;
 import android.widget.Spinner;
 import android.widget.Toast;
 import android.widget.ToggleButton;
-import no.hiof.hiofcommuting.R;
 
 import com.facebook.Request;
 import com.facebook.Response;
@@ -463,7 +464,9 @@ public class FinishProfileFragment extends Fragment {
                 JsonParser jp = new JsonParser();
                 JSONArray jsonInstArr, jsonDepartmentArr, jsonStudArr, jsonUserArr;
                 System.out.println("Got array");
-                jsonInstArr = jp.getJsonArray("http://" + MainActivity.SERVER_URL + "/institution.py", HandleLogin.getCookie(getActivity()));
+                Cookie c = HandleLogin.getCookie(getActivity());
+                if(c == null){return false;}
+                jsonInstArr = jp.getJsonArray("http://" + MainActivity.SERVER_URL + "/institution.py", c);
                 for (int i = 0; i < jsonInstArr.length(); i++) {
                     institutionObjects.add(new Institution(jsonInstArr.getJSONObject(i)));
                 }

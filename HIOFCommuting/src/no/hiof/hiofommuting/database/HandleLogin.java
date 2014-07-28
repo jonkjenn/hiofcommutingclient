@@ -28,6 +28,7 @@ public class HandleLogin {
 		jp.saveCookie = true;
 		JSONArray emailAndPw;
 		emailAndPw = jp.getJsonArray("http://" + MainActivity.SERVER_URL+ "/email.py?q=login&email=" + email + "&pass=" + password, HandleLogin.getCookie(context));
+		if(emailAndPw == null){return false;}
 		cookie = jp.cookie;
 		
 		try {

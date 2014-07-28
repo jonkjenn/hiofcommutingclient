@@ -67,12 +67,12 @@ public class MainActivity extends FragmentActivity {
 
 	@Override
 	public void onBackPressed() {
-		if (fragments[FINISH].isVisible()) {
+		/*if (fragments[FINISH].isVisible()) {
 			Util.showFragment(SPLASH, fm, fragments, "HIOFCommuting",
 					weakActivity);
 			Session session = Session.getActiveSession();
 			session.closeAndClearTokenInformation();
-		}
+		}*/
 	}
 
 	@Override
