@@ -27,3 +27,5 @@ proguard/
 build
 gradle
 *.iml
+.metadata
+.metadata/
