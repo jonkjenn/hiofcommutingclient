@@ -115,6 +115,7 @@ public class LoginFragment extends Fragment {
 				userLoggedIn = HandleLogin.getCurrentEmailUserLoggedIn(email, getActivity());
 				return true;
 			} else {
+				HandleLogin.deleteCookie(getActivity());
 				errorMessage = "Feil brukernavn eller passord. " + (--attempts) + " forsøk igjen.";
 			}
 			return false;

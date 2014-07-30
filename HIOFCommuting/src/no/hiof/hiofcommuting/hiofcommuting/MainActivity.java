@@ -36,13 +36,14 @@ public class MainActivity extends FragmentActivity {
 
 	private static final int SPLASH = 0;
 	private static final int FINISH = 1;
-	private Fragment[] fragments = new Fragment[1];
+	private Fragment[] fragments = new Fragment[2];
 	private boolean isResumed = false;
 	private MenuItem settings;
 	FragmentManager fm = getSupportFragmentManager();
 	WeakReference<Activity> weakActivity = new WeakReference<Activity>(this);
 	private String fbId;
-	 public static String SERVER_URL = "192.168.1.4:8888";
+	private String token;
+	public static String SERVER_URL = "192.168.1.4:8888";
 	//public static String SERVER_URL = "192.168.0.104:8888";
 	public static Cookie cookie;
 
@@ -55,7 +56,7 @@ public class MainActivity extends FragmentActivity {
 
 		setContentView(R.layout.activity_main);
 		fragments[SPLASH] = fm.findFragmentById(R.id.splashFragment);
-		//fragments[FINISH] = fm.findFragmentById(R.id.finishProfileFragment);
+		fragments[FINISH] = fm.findFragmentById(R.id.finishProfileFragment);
 
 		FragmentTransaction transaction = fm.beginTransaction();
 		for (int i = 0; i < fragments.length; i++) {
@@ -67,12 +68,12 @@ public class MainActivity extends FragmentActivity {
 
 	@Override
 	public void onBackPressed() {
-		/*if (fragments[FINISH].isVisible()) {
+		if (fragments[FINISH].isVisible()) {
 			Util.showFragment(SPLASH, fm, fragments, "HIOFCommuting",
 					weakActivity);
 			Session session = Session.getActiveSession();
 			session.closeAndClearTokenInformation();
-		}*/
+		}
 	}
 
 	@Override
@@ -141,6 +142,7 @@ public class MainActivity extends FragmentActivity {
 						if (session == Session.getActiveSession()) {
 							if (user != null) {
 								fbId = user.getId();
+								token = session.getAccessToken();
 								System.out.println("fbsession" + fbId);
 								new AuthenticateUser().execute(fbId, session);
 							}
@@ -198,12 +200,12 @@ public class MainActivity extends FragmentActivity {
 		@Override
 		protected JSONObject doInBackground(Object... params) {
 			try {
-				System.out.println("Her");
 				JsonParser jp = new JsonParser();
 				JSONArray jsonFbArr;
 				jsonFbArr = jp.getJsonArray("http://" + MainActivity.SERVER_URL
-						+ "/usr.py?q=fbUserId&fbid=" + fbId,
+						+ "/usr.py?q=fbUserId&fbid=" + fbId + "&token=" + token,
 						HandleLogin.getCookie(MainActivity.this));
+				if(jsonFbArr == null){return null;}
 				JSONObject jsonObj = (JSONObject) jsonFbArr.get(0);
 				return jsonObj;
 			} catch (JSONException e) {
