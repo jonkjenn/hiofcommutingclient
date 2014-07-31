@@ -8,37 +8,34 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 import no.hiof.hiofcommuting.hiofcommuting.MainActivity;
+import no.hiof.hiofommuting.database.HandleLogin;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
-import org.apache.http.client.CookieStore;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.HttpPost;
-import org.apache.http.client.protocol.ClientContext;
 import org.apache.http.cookie.Cookie;
-import org.apache.http.impl.client.BasicCookieStore;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.message.BasicNameValuePair;
-import org.apache.http.protocol.BasicHttpContext;
-import org.apache.http.protocol.HttpContext;
 
+import com.facebook.Session;
+
+import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.text.method.DateTimeKeyListener;
 
 public class HTTPClient {
 
 	public static boolean sent = false;
-	
 
 	public static void post(String operation, int sender, int receiver,
 			String message) {
-		final String URL = "http://" + MainActivity.SERVER_URL + "/hcserv.py?q=";
+		final String URL = "http://" + MainActivity.SERVER_URL
+				+ "/hcserv.py?q=";
 		HttpClient httpClient = new DefaultHttpClient();
 		HttpPost httpPost = new HttpPost(URL);
 
@@ -90,14 +87,15 @@ public class HTTPClient {
 			}
 		}
 	}
-	
+
 	public static void insertEmailUser(final int studyId,
 			final String firstName, final String surName, final double lat,
 			final double lon, final double distance, final String institution,
 			final String campus, final String department, final String study,
 			final int startingYear, final boolean car,
 			ArrayList<String> registerData) {
-		final String URL = "http://" + MainActivity.SERVER_URL + "/regusr.py?q=";
+		final String URL = "http://" + MainActivity.SERVER_URL
+				+ "/regusr.py?q=";
 		HttpClient httpClient = new DefaultHttpClient();
 		HttpPost httpPost = new HttpPost(URL);
 
@@ -151,12 +149,13 @@ public class HTTPClient {
 			final String firstName, final String surName, final double lat,
 			final double lon, final double distance, final String institution,
 			final String campus, final String department, final String study,
-			final int startingYear, final boolean car, final String fbId) {
-		final String URL = "http://" + MainActivity.SERVER_URL + "/regfbusr.py?q=";
-		HttpClient httpClient = new DefaultHttpClient();
+			final int startingYear, final boolean car, final String fbId,
+			Context context, Session session) {
+		final String URL = "http://" + MainActivity.SERVER_URL
+				+ "/regfbusr.py";
+		DefaultHttpClient httpClient = new DefaultHttpClient();
 		HttpPost httpPost = new HttpPost(URL);
-		
-		
+
 		String q = "facebookUser";
 		String carString;
 		if (car) {
@@ -185,10 +184,19 @@ public class HTTPClient {
 				.valueOf(startingYear)));
 		nameValuePairs
 				.add(new BasicNameValuePair("fbid", String.valueOf(fbId)));
+		nameValuePairs.add(new BasicNameValuePair("token", session
+				.getAccessToken()));
 
 		try {
 			httpPost.setEntity(new UrlEncodedFormEntity(nameValuePairs, "utf-8"));
 			HttpResponse httpResponse = httpClient.execute(httpPost);
+
+			List<Cookie> cook = httpClient.getCookieStore().getCookies();
+			for (Cookie c : cook) {
+				if (c.getName().equals("hccook")) {
+					HandleLogin.saveCookie(c, context);
+				}
+			}
 
 			if (httpResponse.getStatusLine().getStatusCode() == 200) {
 				sent = true;
@@ -202,20 +210,23 @@ public class HTTPClient {
 		}
 	}
 
-	public static Bitmap getProfilePicturesFromServer(String source, String urlExtension, boolean showLarge) {
+	public static Bitmap getProfilePicturesFromServer(String source,
+			String urlExtension, boolean showLarge) {
 		String urlString = "";
-        String pictureSize = "small";
+		String pictureSize = "small";
 
-        if (showLarge)
-            pictureSize = "400";
+		if (showLarge)
+			pictureSize = "400";
 
-		if(source.equalsIgnoreCase("email")) {
-			urlString = "http://www.frostbittmedia.com/upload/files/" + urlExtension + ".jpg";
+		if (source.equalsIgnoreCase("email")) {
+			urlString = "http://www.frostbittmedia.com/upload/files/"
+					+ urlExtension + ".jpg";
+		} else if (source.equalsIgnoreCase("facebook")) {
+			urlString = "https://graph.facebook.com/" + urlExtension
+					+ "/picture?width=" + pictureSize + "&height="
+					+ pictureSize;
 		}
-		else if(source.equalsIgnoreCase("facebook")) {
-            urlString = "https://graph.facebook.com/" + urlExtension + "/picture?width=" + pictureSize + "&height=" + pictureSize;
-		}
-		
+
 		InputStream in = null;
 		int response = -1;
 
@@ -231,7 +242,10 @@ public class HTTPClient {
 				return null;
 			}
 			response = httpConn.getResponseCode();
-			System.out.println("Response : " +response + httpConn.getResponseCode() + httpConn.getURL() + HttpURLConnection.getFollowRedirects() + httpConn.getHeaderField("Location"));
+			System.out.println("Response : " + response
+					+ httpConn.getResponseCode() + httpConn.getURL()
+					+ HttpURLConnection.getFollowRedirects()
+					+ httpConn.getHeaderField("Location"));
 			if (response == HttpURLConnection.HTTP_OK) {
 				in = httpConn.getInputStream();
 				bitmap = BitmapFactory.decodeStream(in);
@@ -239,7 +253,7 @@ public class HTTPClient {
 				bitmap = Bitmap.createScaledBitmap(bitmap, 400, 400, false);
 				return bitmap;
 			}
-			//If we got redirected from the page
+			// If we got redirected from the page
 			else if (response == 302) {
 				String newLocationUrl = httpConn.getHeaderField("Location");
 				URLConnection con = new URL(newLocationUrl).openConnection();

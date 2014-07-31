@@ -29,7 +29,7 @@ import android.graphics.Bitmap;
 import android.location.Address;
 import android.location.Geocoder;
 
-import com.google.android.gms.maps.model.LatLng;
+import com.facebook.Session;
 
 public class HandleUsers {
 	private static List<User> userList = new ArrayList<User>();
@@ -184,7 +184,7 @@ public class HandleUsers {
 	public static JSONObject getLocationFromGoogle(String placesName) {
 
 		try {
-			placesName = URLEncoder.encode(placesName,"UTF-8");
+			placesName = URLEncoder.encode(placesName, "UTF-8");
 		} catch (UnsupportedEncodingException e1) {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
@@ -218,15 +218,14 @@ public class HandleUsers {
 			e.printStackTrace();
 		}
 
-/*		JSONArray ja = new JsonParser().getJsonArray("http://maps.google.com/maps/api/geocode/json?address="+ placesName + "&ka&sensor=false",null);
-
-		try {
-			return ja.getJSONObject(0);
-		} catch (JSONException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-			return null;
-		}*/
+		/*
+		 * JSONArray ja = new JsonParser().getJsonArray(
+		 * "http://maps.google.com/maps/api/geocode/json?address="+ placesName +
+		 * "&ka&sensor=false",null);
+		 * 
+		 * try { return ja.getJSONObject(0); } catch (JSONException e) { // TODO
+		 * Auto-generated catch block e.printStackTrace(); return null; }
+		 */
 		return jsonObject;
 	}
 
@@ -250,7 +249,7 @@ public class HandleUsers {
 			e.printStackTrace();
 		}
 
-		return new double[]{lat, lon};
+		return new double[] { lat, lon };
 
 	}
 
@@ -294,14 +293,15 @@ public class HandleUsers {
 			final String firstName, final String surName, final double lat,
 			final double lon, final double distance, final String institution,
 			final String campus, final String department, final String study,
-			final int startingYear, final boolean car, final String fbId) {
+			final int startingYear, final boolean car, final String fbId,
+			final Context context, final Session session) {
 
 		Thread t = new Thread(new Runnable() {
 			@Override
 			public void run() {
 				HTTPClient.insertFacebookUser(studyId, firstName, surName, lat,
 						lon, distance, institution, campus, department, study,
-						startingYear, car, fbId);
+						startingYear, car, fbId, context ,session);
 			}
 		});
 

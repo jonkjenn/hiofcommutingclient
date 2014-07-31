@@ -43,8 +43,8 @@ public class MainActivity extends FragmentActivity {
 	WeakReference<Activity> weakActivity = new WeakReference<Activity>(this);
 	private String fbId;
 	private String token;
-	public static String SERVER_URL = "192.168.1.4:8888";
-	//public static String SERVER_URL = "192.168.0.104:8888";
+	//public static String SERVER_URL = "192.168.1.4:8888";
+	public static String SERVER_URL = "192.168.0.104:8888";
 	public static Cookie cookie;
 
 	@Override
@@ -203,7 +203,7 @@ public class MainActivity extends FragmentActivity {
 				JsonParser jp = new JsonParser();
 				JSONArray jsonFbArr;
 				jsonFbArr = jp.getJsonArray("http://" + MainActivity.SERVER_URL
-						+ "/usr.py?q=fbUserId&fbid=" + fbId + "&token=" + token,
+						+ "/usr.py?q=fbusrid&fbid=" + fbId + "&token=" + token,
 						HandleLogin.getCookie(MainActivity.this));
 				if(jsonFbArr == null){return null;}
 				JSONObject jsonObj = (JSONObject) jsonFbArr.get(0);

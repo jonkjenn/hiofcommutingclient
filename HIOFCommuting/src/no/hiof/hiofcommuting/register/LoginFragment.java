@@ -108,7 +108,7 @@ public class LoginFragment extends Fragment {
 
 			Boolean authenticated = HandleLogin.checkUnAndPw(email,password, getActivity());
 			if(HandleLogin.cookie != null){
-				saveCookie(HandleLogin.cookie);
+				HandleLogin.saveCookie(HandleLogin.cookie, getActivity());
 				HandleLogin.cookie = null;
 			}
 			if (authenticated) {
@@ -135,17 +135,5 @@ public class LoginFragment extends Fragment {
 			}
 		}
 		
-		private void saveCookie(Cookie c)
-		{
-			SharedPreferences prefs = getActivity().getSharedPreferences("hccook", Context.MODE_PRIVATE);
-			SharedPreferences.Editor editor = prefs.edit();
-			editor.putString("name", c.getName());			
-			editor.putString("value", c.getValue());
-			editor.putString("domain", c.getDomain());
-			editor.putString("expiry", c.getExpiryDate()==null?"":c.getExpiryDate().toString());
-			editor.putString("path", c.getPath());
-			editor.putInt("version", c.getVersion());
-			editor.apply();
-		}
 	}
 }

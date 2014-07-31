@@ -242,9 +242,10 @@ public class FinishProfileFragment extends Fragment {
 			car = true;
 		}
 		if (facebookUser) {
+			Session session = ((MainActivity) getActivity()).getFacebookSession();
 			HandleUsers.insertFacebookUserToDb(studyId, firstName, surName,
 					lat, lon, distance, institution, campus, department, study,
-					startingYear, car, fbId);
+					startingYear, car, fbId, getActivity(), session);
 		} else {
 			HandleUsers.insertEmailUserToDb(studyId, firstName, surName, lat,
 					lon, distance, institution, campus, department, study,

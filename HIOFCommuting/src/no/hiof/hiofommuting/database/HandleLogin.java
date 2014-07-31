@@ -16,43 +16,48 @@ import android.content.SharedPreferences;
 import android.text.format.DateFormat;
 
 public class HandleLogin {
-	
+
 	public static Cookie cookie;
 
-	public static boolean checkUnAndPw(String email, String password, Context context) {
+	public static boolean checkUnAndPw(String email, String password,
+			Context context) {
 		/*
-		Using -100 as error code for wrong/misspelled/missing email address.
-  		Using -200 as error code for wrong/misspelled/missing password.
+		 * Using -100 as error code for wrong/misspelled/missing email address.
+		 * Using -200 as error code for wrong/misspelled/missing password.
 		 */
 		JsonParser jp = new JsonParser();
 		jp.saveCookie = true;
 		JSONArray emailAndPw;
-		emailAndPw = jp.getJsonArray("http://" + MainActivity.SERVER_URL+ "/email.py?q=login&email=" + email + "&pass=" + password, HandleLogin.getCookie(context));
-		if(emailAndPw == null){return false;}
+		emailAndPw = jp.getJsonArray("http://" + MainActivity.SERVER_URL
+				+ "/email.py?q=login&email=" + email + "&pass=" + password,
+				HandleLogin.getCookie(context));
+		if (emailAndPw == null) {
+			return false;
+		}
 		cookie = jp.cookie;
-		
+
 		try {
 			JSONObject emailAndPwObj = (JSONObject) emailAndPw.get(0);
 			String uId = emailAndPwObj.getString("user_id");
 			System.out.println("userid: " + uId);
-			if(uId.equals("-100") || uId.equals("-200")){
+			if (uId.equals("-100") || uId.equals("-200")) {
 				return false;
-			}
-			else {
+			} else {
 				return true;
 			}
-		} catch(JSONException e){
+		} catch (JSONException e) {
 			e.printStackTrace();
 			return false;
 		}
 	}
 
-	public static User getCurrentEmailUserLoggedIn(String email, Context context){
+	public static User getCurrentEmailUserLoggedIn(String email, Context context) {
 		User userLoggedIn = null;
 		JsonParser jp = new JsonParser();
 		JSONArray emailUser;
-		emailUser = jp.getJsonArray("http://" + MainActivity.SERVER_URL + "/usr.py?q=emailUser&email=" + email, getCookie(context));
-		
+		emailUser = jp.getJsonArray("http://" + MainActivity.SERVER_URL
+				+ "/usr.py?q=emailUser&email=" + email, getCookie(context));
+
 		try {
 			JSONObject obj = (JSONObject) emailUser.get(0);
 			int userId, studyId, startingYear;
@@ -68,7 +73,8 @@ public class HandleLogin {
 			campus = obj.getString("campus_name");
 			department = obj.getString("department_name");
 			study = obj.getString("name_of_study");
-			String point = obj.getString("latlon").replace("POINT(", "").replace(")", "");
+			String point = obj.getString("latlon").replace("POINT(", "")
+					.replace(")", "");
 			String[] latlon = point.split(" ");
 			lat = Double.parseDouble(latlon[0]);
 			lon = Double.parseDouble(latlon[1]);
@@ -77,24 +83,25 @@ public class HandleLogin {
 			System.out.println("lon2 : " + lon);
 			distance = 0.0;
 			String carString = obj.getString("car");
-			if(carString.equals("1")) {
+			if (carString.equals("1")) {
 				car = true;
-			}
-			else {
+			} else {
 				car = false;
 			}
 			String fbId = "";
-			userLoggedIn = new User(userId, studyId, firstname, surname, lat, lon, distance, institution, campus, department, study, startingYear, car, photoUrl, fbId);
+			userLoggedIn = new User(userId, studyId, firstname, surname, lat,
+					lon, distance, institution, campus, department, study,
+					startingYear, car, photoUrl, fbId);
 			return userLoggedIn;
-		} catch(JSONException e){
+		} catch (JSONException e) {
 			e.printStackTrace();
 		}
 		return userLoggedIn;
 	}
-	
-	public static User getCurrentFacebookUserLoggedIn(JSONObject obj){
+
+	public static User getCurrentFacebookUserLoggedIn(JSONObject obj) {
 		User userLoggedIn;
-		try{
+		try {
 			System.out.println("lager user");
 			int userId, studyId, startingYear;
 			String firstname, surname, institution, campus, department, study;
@@ -109,7 +116,8 @@ public class HandleLogin {
 			campus = obj.getString("campus_name");
 			department = obj.getString("department_name");
 			study = obj.getString("name_of_study");
-			String point = obj.getString("latlon").replace("POINT(", "").replace(")", "");
+			String point = obj.getString("latlon").replace("POINT(", "")
+					.replace(")", "");
 			String[] latlon = point.split(" ");
 			lat = Double.parseDouble(latlon[0]);
 			lon = Double.parseDouble(latlon[1]);
@@ -118,16 +126,17 @@ public class HandleLogin {
 			System.out.println("lon2 : " + lon);
 			distance = 0.0;
 			String carString = obj.getString("car");
-			if(carString.equals("1")) {
+			if (carString.equals("1")) {
 				car = true;
-			}
-			else {
+			} else {
 				car = false;
 			}
 			String fbId = "";
-			userLoggedIn = new User(userId, studyId, firstname, surname, lat, lon, distance, institution, campus, department, study, startingYear, car, photoUrl, fbId);
+			userLoggedIn = new User(userId, studyId, firstname, surname, lat,
+					lon, distance, institution, campus, department, study,
+					startingYear, car, photoUrl, fbId);
 			return userLoggedIn;
-		}catch(Exception e){
+		} catch (Exception e) {
 			return null;
 		}
 	}
@@ -147,29 +156,43 @@ public class HandleLogin {
 		}
 		return false;
 	}
-	
-	public static Cookie getCookie(Context context)
-	{
-			SharedPreferences prefs = context.getSharedPreferences("hccook", Context.MODE_PRIVATE);
-			
-			if(!prefs.contains("name"))
-			{
-				return null;
-			}
-			
-			BasicClientCookie c = new BasicClientCookie(prefs.getString("name", ""), prefs.getString("value",""));
-			c.setDomain(prefs.getString("domain", ""));
-			c.setPath(prefs.getString("path", ""));
-			c.setVersion(prefs.getInt("version", 0));
-			return c;
+
+	public static Cookie getCookie(Context context) {
+		SharedPreferences prefs = context.getSharedPreferences("hccook",
+				Context.MODE_PRIVATE);
+
+		if (!prefs.contains("name")) {
+			return null;
+		}
+
+		BasicClientCookie c = new BasicClientCookie(
+				prefs.getString("name", ""), prefs.getString("value", ""));
+		c.setDomain(prefs.getString("domain", ""));
+		c.setPath(prefs.getString("path", ""));
+		c.setVersion(prefs.getInt("version", 0));
+		return c;
 	}
-	
-	public static void deleteCookie(Context context)
-	{
-			SharedPreferences prefs = context.getSharedPreferences("hccook", Context.MODE_PRIVATE);
-			SharedPreferences.Editor se = prefs.edit();
-			se.clear();
-			se.apply();
+
+	public static void deleteCookie(Context context) {
+		SharedPreferences prefs = context.getSharedPreferences("hccook",
+				Context.MODE_PRIVATE);
+		SharedPreferences.Editor se = prefs.edit();
+		se.clear();
+		se.apply();
 	}
-	
+
+	public static void saveCookie(Cookie c, Context context) {
+		SharedPreferences prefs = context.getSharedPreferences("hccook",
+				Context.MODE_PRIVATE);
+		SharedPreferences.Editor editor = prefs.edit();
+		editor.putString("name", c.getName());
+		editor.putString("value", c.getValue());
+		editor.putString("domain", c.getDomain());
+		editor.putString("expiry", c.getExpiryDate() == null ? "" : c
+				.getExpiryDate().toString());
+		editor.putString("path", c.getPath());
+		editor.putInt("version", c.getVersion());
+		editor.apply();
+	}
+
 }
