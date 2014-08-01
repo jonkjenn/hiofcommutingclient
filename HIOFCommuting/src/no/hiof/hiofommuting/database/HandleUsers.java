@@ -19,6 +19,7 @@ import org.apache.http.HttpResponse;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
+import org.apache.http.cookie.Cookie;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -275,14 +276,14 @@ public class HandleUsers {
 			final double lon, final double distance, final String institution,
 			final String campus, final String department, final String study,
 			final int startingYear, final boolean car,
-			final ArrayList<String> registerData) {
+			final ArrayList<String> registerData, final Context context) {
 
 		Thread t = new Thread(new Runnable() {
 			@Override
 			public void run() {
 				HTTPClient.insertEmailUser(studyId, firstName, surName, lat,
 						lon, distance, institution, campus, department, study,
-						startingYear, car, registerData);
+						startingYear, car, registerData, context);
 			}
 		});
 
@@ -307,7 +308,25 @@ public class HandleUsers {
 
 		t.start();
 	}
-
+	
+	public static void deleteUser(Context context, int userId)
+	{
+		Cookie c = HandleLogin.getCookie(context);		
+		DefaultHttpClient client = new DefaultHttpClient();
+		client.getCookieStore().addCookie(c);
+		String delete = "http://" + MainActivity.SERVER_URL
+				+ "/delusr.py?uid=" + userId;
+		try {
+			client.execute(new HttpGet(delete));
+		} catch (ClientProtocolException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+	
 	public static Bitmap getProfilePicture(final String urlExtension) {
 
 		Thread t = new Thread(new Runnable() {

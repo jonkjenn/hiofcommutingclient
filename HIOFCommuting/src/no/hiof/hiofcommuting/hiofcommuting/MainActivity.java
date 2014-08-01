@@ -202,10 +202,12 @@ public class MainActivity extends FragmentActivity {
 			try {
 				JsonParser jp = new JsonParser();
 				JSONArray jsonFbArr;
+				jp.saveCookie = true;
 				jsonFbArr = jp.getJsonArray("http://" + MainActivity.SERVER_URL
 						+ "/usr.py?q=fbusrid&fbid=" + fbId + "&token=" + token,
 						HandleLogin.getCookie(MainActivity.this));
 				if(jsonFbArr == null){return null;}
+				if(jp.cookie != null){HandleLogin.saveCookie(jp.cookie, MainActivity.this);}
 				JSONObject jsonObj = (JSONObject) jsonFbArr.get(0);
 				return jsonObj;
 			} catch (JSONException e) {

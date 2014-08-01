@@ -2,6 +2,7 @@ package no.hiof.hiofcommuting.tab;
 
 import java.util.List;
 
+import no.hiof.hiofcommuting.R;
 import no.hiof.hiofcommuting.hiofcommuting.ChatService;
 import no.hiof.hiofcommuting.hiofcommuting.MainActivity;
 import no.hiof.hiofcommuting.objects.Filter;
@@ -10,7 +11,11 @@ import no.hiof.hiofommuting.database.HandleLogin;
 import no.hiof.hiofommuting.database.HandleUsers;
 import android.app.ActionBar;
 import android.app.ActionBar.Tab;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
+import android.content.DialogInterface.OnClickListener;
 import android.content.Intent;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
@@ -25,7 +30,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CheckBox;
 import android.widget.NumberPicker;
-import no.hiof.hiofcommuting.R;
 
 import com.facebook.Session;
 
@@ -146,6 +150,9 @@ public class TabListenerActivity extends FragmentActivity implements
 			return true;
 		case R.id.filter_user:
 			showUserFilter();
+			return true;
+		case R.id.avmelding:
+			avmelding();
 			return true;
 		default:
 			return super.onOptionsItemSelected(item);
@@ -326,6 +333,7 @@ public class TabListenerActivity extends FragmentActivity implements
 			System.out.println("Inbox");
 			setTitle("Inbox");
 		}
+		
 	}
 
 	@Override
@@ -339,6 +347,39 @@ public class TabListenerActivity extends FragmentActivity implements
 
 		}
 	}
+	
+	
+	private void avmelding()
+	{
+		AlertDialog.Builder ab = new AlertDialog.Builder(this);
+		ab.setMessage("Bekreft at du vil slette din konto")
+		.setPositiveButton("Slett konto", new OnClickListener() {
+			
+			@Override
+			public void onClick(DialogInterface arg0, int arg1) {
+				new AsyncTask<Void, Void, Void>() {
 
-
+					@Override
+					protected Void doInBackground(Void... params) {
+                        HandleUsers.deleteUser(TabListenerActivity.this, userLoggedIn.getUserid());
+						return null;
+					}
+					
+					protected void onPostExecute(Void result) {
+						performLogout();
+					}
+					
+				}.execute();
+			}
+		})
+		.setNegativeButton("Avbryt", new OnClickListener() {
+			
+			@Override
+			public void onClick(DialogInterface dialog, int which) {
+				dialog.cancel();
+			}
+		});
+		
+		ab.create().show();
+	}
 }

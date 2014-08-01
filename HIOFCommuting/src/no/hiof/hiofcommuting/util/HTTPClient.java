@@ -33,11 +33,15 @@ public class HTTPClient {
 	public static boolean sent = false;
 
 	public static void post(String operation, int sender, int receiver,
-			String message) {
+			String message, Cookie cookie) {
 		final String URL = "http://" + MainActivity.SERVER_URL
-				+ "/hcserv.py?q=";
-		HttpClient httpClient = new DefaultHttpClient();
+				+ "/hcserv.py";
+		DefaultHttpClient httpClient = new DefaultHttpClient();
 		HttpPost httpPost = new HttpPost(URL);
+
+		if (cookie != null) {
+			httpClient.getCookieStore().addCookie(cookie);
+		}
 
 		if (operation.equals("read")) {
 			final List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>(
@@ -93,10 +97,10 @@ public class HTTPClient {
 			final double lon, final double distance, final String institution,
 			final String campus, final String department, final String study,
 			final int startingYear, final boolean car,
-			ArrayList<String> registerData) {
+			ArrayList<String> registerData, Context context) {
 		final String URL = "http://" + MainActivity.SERVER_URL
 				+ "/regusr.py?q=";
-		HttpClient httpClient = new DefaultHttpClient();
+		DefaultHttpClient httpClient = new DefaultHttpClient();
 		HttpPost httpPost = new HttpPost(URL);
 
 		String q = "emailUser";
@@ -132,6 +136,8 @@ public class HTTPClient {
 		try {
 			httpPost.setEntity(new UrlEncodedFormEntity(nameValuePairs, "utf-8"));
 			HttpResponse httpResponse = httpClient.execute(httpPost);
+
+			saveCookie(httpClient, context);
 
 			if (httpResponse.getStatusLine().getStatusCode() == 200) {
 				sent = true;
@@ -191,12 +197,7 @@ public class HTTPClient {
 			httpPost.setEntity(new UrlEncodedFormEntity(nameValuePairs, "utf-8"));
 			HttpResponse httpResponse = httpClient.execute(httpPost);
 
-			List<Cookie> cook = httpClient.getCookieStore().getCookies();
-			for (Cookie c : cook) {
-				if (c.getName().equals("hccook")) {
-					HandleLogin.saveCookie(c, context);
-				}
-			}
+			saveCookie(httpClient, context);
 
 			if (httpResponse.getStatusLine().getStatusCode() == 200) {
 				sent = true;
@@ -208,6 +209,16 @@ public class HTTPClient {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+	}
+	
+	private static void saveCookie(DefaultHttpClient httpClient, Context context)
+	{
+			List<Cookie> cook = httpClient.getCookieStore().getCookies();
+			for (Cookie c : cook) {
+				if (c.getName().equals("hccook")) {
+					HandleLogin.saveCookie(c, context);
+				}
+			}
 	}
 
 	public static Bitmap getProfilePicturesFromServer(String source,

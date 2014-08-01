@@ -5,11 +5,10 @@ import java.util.List;
 import no.hiof.hiofcommuting.objects.Conversation;
 import no.hiof.hiofcommuting.objects.User;
 import no.hiof.hiofcommuting.util.HTTPClient;
+import no.hiof.hiofommuting.database.HandleLogin;
 import no.hiof.hiofommuting.database.HandleMessages;
 import android.os.Handler;
-
 import no.hiof.hiofcommuting.R;
-
 import android.app.ProgressDialog;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -82,7 +81,7 @@ public class ChatFragment extends Fragment{
 			try {
                 HandleMessages.myID = userLoggedIn.getUserid();
                 HandleMessages.partnerID = userToChatWith.getUserid();
-				chat = HandleMessages.getConversation(userLoggedIn, userToChatWith, getActivity());
+				chat = HandleMessages.getConversation(userLoggedIn, userToChatWith, HandleLogin.getCookie(getActivity()));
 				return chat;
 			} catch (Exception e) {
 				return null;
@@ -113,7 +112,7 @@ public class ChatFragment extends Fragment{
 		protected Boolean doInBackground(String... params) {
 			String message = params[0].toString();
 			try{
-                HandleMessages.sendMessage(userLoggedIn, userToChatWith, message);
+                HandleMessages.sendMessage(userLoggedIn, userToChatWith, message, HandleLogin.getCookie(getActivity()));
 
                 if (HTTPClient.sent)
                     return true;

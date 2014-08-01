@@ -9,6 +9,7 @@ import no.hiof.hiofcommuting.objects.Inbox;
 import no.hiof.hiofcommuting.objects.User;
 import no.hiof.hiofcommuting.util.HTTPClient;
 
+import org.apache.http.cookie.Cookie;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -20,7 +21,7 @@ public class HandleMessages {
     public static int myID;
     public static int partnerID;
 
-	public static List<Conversation> getConversation(User sender, User receiver, Context context) {
+	public static List<Conversation> getConversation(User sender, User receiver, Cookie cookie) {
 		List<Conversation> chat = new ArrayList<Conversation>();
 		int user_id_sender = 0;
 		int user_id_receiver = 0;
@@ -31,7 +32,7 @@ public class HandleMessages {
 				+ receiver.getUserid();
 
 		try {
-			JSONArray chatArray = new JsonParser().getJsonArray(url, HandleLogin.getCookie(context));
+			JSONArray chatArray = new JsonParser().getJsonArray(url, cookie);
 			for (int i = 0; i < chatArray.length(); i++) {
 				JSONObject obj;
 				obj = chatArray.getJSONObject(i);
@@ -58,7 +59,7 @@ public class HandleMessages {
                 chat.add(new Conversation(sendr, recvr, message, sent));
 
                 if (myID != user_id_sender) // If im not the sender..
-                    setMessageAsRead(user_id_sender, user_id_receiver);
+                    setMessageAsRead(user_id_sender, user_id_receiver, cookie);
             }
 		} catch (JSONException e) {
 			return null;
@@ -95,25 +96,25 @@ public class HandleMessages {
 		}*/
 	}
 
-	private static void setMessageAsRead(final int sender, final int receiver) {
+	private static void setMessageAsRead(final int sender, final int receiver, final Cookie cookie) {
 
 		Thread t = new Thread(new Runnable() {
 			@Override
 			public void run() {
-				HTTPClient.post("read", sender, receiver, "");
+				HTTPClient.post("read", sender, receiver, "", cookie);
 			}
 		});
 
 		t.start();
 	}
 
-	public static void sendMessage(final User sender, final User receiver, final String message) {
+	public static void sendMessage(final User sender, final User receiver, final String message, final Cookie cookie) {
 
 		Thread t = new Thread(new Runnable() {
 			@Override
 			public void run() {
 				HTTPClient.post("send", sender.getUserid(),
-						receiver.getUserid(), message);
+						receiver.getUserid(), message, cookie);
 			}
 		});
 

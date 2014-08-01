@@ -249,7 +249,7 @@ public class FinishProfileFragment extends Fragment {
 		} else {
 			HandleUsers.insertEmailUserToDb(studyId, firstName, surName, lat,
 					lon, distance, institution, campus, department, study,
-					startingYear, car, registerData);
+					startingYear, car, registerData, getActivity());
 		}
 		createUserObj(studyId, firstName, surName, lat, lon, distance,
 				startingYear, car, photoUrl);
