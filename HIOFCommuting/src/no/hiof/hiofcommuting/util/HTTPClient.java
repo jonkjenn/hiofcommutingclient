@@ -1,107 +1,118 @@
 package no.hiof.hiofcommuting.util;
 
+import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
+import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
+import java.net.CookieHandler;
+import java.net.CookieManager;
+import java.net.HttpCookie;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLConnection;
+import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.List;
 
 import no.hiof.hiofcommuting.hiofcommuting.MainActivity;
-import no.hiof.hiofommuting.database.HandleLogin;
 
-import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.entity.UrlEncodedFormEntity;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.cookie.Cookie;
-import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.message.BasicNameValuePair;
-
-import com.facebook.Session;
 
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 
+import com.facebook.Session;
+
 public class HTTPClient {
 
 	public static boolean sent = false;
 
-	public static void post(String operation, int sender, int receiver,
-			String message, Cookie cookie) {
-		final String URL = "http://" + MainActivity.SERVER_URL
-				+ "/hcserv.py";
-		DefaultHttpClient httpClient = new DefaultHttpClient();
-		HttpPost httpPost = new HttpPost(URL);
+	private static int post_data(String url, String data, HttpCookie cookie) {
+		try {
+			URL u = new URL(url);
+			HttpURLConnection c = (HttpURLConnection) u.openConnection();
+			c.setDoOutput(true);
+			c.setRequestProperty("Content-Type",
+					"application/x-www-form-urlencoded;charset=utf-8");
+			c.setRequestProperty("Connection", "close");
 
-		if (cookie != null) {
-			httpClient.getCookieStore().addCookie(cookie);
+			if (cookie != null) {
+				try {
+					((CookieManager) CookieHandler.getDefault())
+							.getCookieStore().add(
+									new URI(MainActivity.SERVER_URL), cookie);
+				} catch (URISyntaxException e) {
+					e.printStackTrace();
+				}
+			}
+
+			c.setFixedLengthStreamingMode(data.getBytes("UTF-8").length);
+			// c.setChunkedStreamingMode(1000);
+			PrintWriter pw = new PrintWriter(new OutputStreamWriter(
+					c.getOutputStream(), "UTF-8"));
+			pw.write(data);
+			pw.flush();
+			pw.close();
+
+			int code = c.getResponseCode();
+			c.disconnect();
+			return code;
+
+		} catch (MalformedURLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			return 0;
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			return 0;
 		}
+	}
+
+	public static void post(String operation, int sender, int receiver,
+			String message, HttpCookie cookie) {
+		final String URL = MainActivity.SERVER_URL + "/hcserv.py";
+
+		final List<NameValuePair> nameValuePairs;
 
 		if (operation.equals("read")) {
-			final List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>(
-					3);
+			nameValuePairs = new ArrayList<NameValuePair>(3);
 			nameValuePairs.add(new BasicNameValuePair("q", operation));
 			nameValuePairs.add(new BasicNameValuePair("user_id_sender", String
 					.valueOf(sender)));
 			nameValuePairs.add(new BasicNameValuePair("user_id_receiver",
 					String.valueOf(receiver)));
 
-			try {
-				httpPost.setEntity(new UrlEncodedFormEntity(nameValuePairs,
-						"utf-8"));
-				HttpResponse httpResponse = httpClient.execute(httpPost);
-
-				if (httpResponse.getStatusLine().getStatusCode() == 200)
-					sent = true;
-
-			} catch (UnsupportedEncodingException e) {
-				e.printStackTrace();
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
 		} else {
-			System.out.println("melding" + message);
-			final List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>(
-					4);
+			nameValuePairs = new ArrayList<NameValuePair>(4);
 			nameValuePairs.add(new BasicNameValuePair("q", operation));
 			nameValuePairs.add(new BasicNameValuePair("user_id_sender", String
 					.valueOf(sender)));
 			nameValuePairs.add(new BasicNameValuePair("user_id_receiver",
 					String.valueOf(receiver)));
 			nameValuePairs.add(new BasicNameValuePair("message", message));
+		}
 
-			try {
-				httpPost.setEntity(new UrlEncodedFormEntity(nameValuePairs,
-						"utf-8"));
-				HttpResponse httpResponse = httpClient.execute(httpPost);
-
-				if (httpResponse.getStatusLine().getStatusCode() == 200)
-					sent = true;
-
-			} catch (UnsupportedEncodingException e) {
-				e.printStackTrace();
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
+		if (post_data(URL, createPost(nameValuePairs), cookie) == 200) {
+			sent = true;
 		}
 	}
 
-	public static void insertEmailUser(final int studyId,
+	public static boolean insertEmailUser(final int studyId,
 			final String firstName, final String surName, final double lat,
 			final double lon, final double distance, final String institution,
 			final String campus, final String department, final String study,
 			final int startingYear, final boolean car,
 			ArrayList<String> registerData, Context context) {
-		final String URL = "http://" + MainActivity.SERVER_URL
-				+ "/regusr.py?q=";
-		DefaultHttpClient httpClient = new DefaultHttpClient();
-		HttpPost httpPost = new HttpPost(URL);
+		final String URL = MainActivity.SERVER_URL + "/regusr.py";
 
 		String q = "emailUser";
 		String email = registerData.get(2);
@@ -133,21 +144,10 @@ public class HTTPClient {
 				.valueOf(email)));
 		nameValuePairs.add(new BasicNameValuePair("pw", String.valueOf(pw)));
 
-		try {
-			httpPost.setEntity(new UrlEncodedFormEntity(nameValuePairs, "utf-8"));
-			HttpResponse httpResponse = httpClient.execute(httpPost);
-
-			saveCookie(httpClient, context);
-
-			if (httpResponse.getStatusLine().getStatusCode() == 200) {
-				sent = true;
-			}
-			System.out.println("sendt " + sent);
-
-		} catch (UnsupportedEncodingException e) {
-			e.printStackTrace();
-		} catch (IOException e) {
-			e.printStackTrace();
+		if (post_data(URL, createPost(nameValuePairs), null) == 200) {
+			return true;
+		} else {
+			return false;
 		}
 	}
 
@@ -157,10 +157,7 @@ public class HTTPClient {
 			final String campus, final String department, final String study,
 			final int startingYear, final boolean car, final String fbId,
 			Context context, Session session) {
-		final String URL = "http://" + MainActivity.SERVER_URL
-				+ "/regfbusr.py";
-		DefaultHttpClient httpClient = new DefaultHttpClient();
-		HttpPost httpPost = new HttpPost(URL);
+		final String URL = MainActivity.SERVER_URL + "/regfbusr.py";
 
 		String q = "facebookUser";
 		String carString;
@@ -169,10 +166,10 @@ public class HTTPClient {
 		} else {
 			carString = "false";
 		}
-		System.out.println("parameters : q=" + q + "&sid=" + studyId
-				+ "&fname=" + firstName + "&sname=" + surName + "&lon=" + lon
-				+ "&lat=" + lat + "&car=" + car + "&starting_year="
-				+ startingYear + "&fbid=" + fbId);
+		// System.out.println("parameters : q=" + q + "&sid=" + studyId +
+		// "&fname=" + firstName + "&sname=" + surName + "&lon=" + lon + "&lat="
+		// + lat + "&car=" + car + "&starting_year=" + startingYear + "&fbid=" +
+		// fbId);
 		final List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>(
 				9);
 		nameValuePairs.add(new BasicNameValuePair("q", q));
@@ -193,32 +190,9 @@ public class HTTPClient {
 		nameValuePairs.add(new BasicNameValuePair("token", session
 				.getAccessToken()));
 
-		try {
-			httpPost.setEntity(new UrlEncodedFormEntity(nameValuePairs, "utf-8"));
-			HttpResponse httpResponse = httpClient.execute(httpPost);
-
-			saveCookie(httpClient, context);
-
-			if (httpResponse.getStatusLine().getStatusCode() == 200) {
-				sent = true;
-			}
-			System.out.println("sendt " + sent);
-
-		} catch (UnsupportedEncodingException e) {
-			e.printStackTrace();
-		} catch (IOException e) {
-			e.printStackTrace();
+		if (post_data(URL, createPost(nameValuePairs), null) == 200) {
+			sent = true;
 		}
-	}
-	
-	private static void saveCookie(DefaultHttpClient httpClient, Context context)
-	{
-			List<Cookie> cook = httpClient.getCookieStore().getCookies();
-			for (Cookie c : cook) {
-				if (c.getName().equals("hccook")) {
-					HandleLogin.saveCookie(c, context);
-				}
-			}
 	}
 
 	public static Bitmap getProfilePicturesFromServer(String source,
@@ -253,10 +227,10 @@ public class HTTPClient {
 				return null;
 			}
 			response = httpConn.getResponseCode();
-			System.out.println("Response : " + response
-					+ httpConn.getResponseCode() + httpConn.getURL()
-					+ HttpURLConnection.getFollowRedirects()
-					+ httpConn.getHeaderField("Location"));
+			// System.out.println("Response : " + response +
+			// httpConn.getResponseCode() + httpConn.getURL() +
+			// HttpURLConnection.getFollowRedirects() +
+			// httpConn.getHeaderField("Location"));
 			if (response == HttpURLConnection.HTTP_OK) {
 				in = httpConn.getInputStream();
 				bitmap = BitmapFactory.decodeStream(in);
@@ -289,4 +263,101 @@ public class HTTPClient {
 		}
 		return null;
 	}
+
+	public static void insertGcmId(final String gcmId, HttpCookie cookie) {
+		final String URL = MainActivity.SERVER_URL + "/reggcm.py?";
+
+		final List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>(
+				1);
+
+		nameValuePairs.add(new BasicNameValuePair("gcmId", gcmId));
+
+		if (post_data(URL, createPost(nameValuePairs), null) == 200) {
+			sent = true;
+		}
+	}
+
+	public static void addCookie(HttpCookie cookie) {
+
+		try {
+			((CookieManager) CookieHandler.getDefault()).getCookieStore().add(
+					new URI(MainActivity.SERVER_URL), cookie);
+		} catch (URISyntaxException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+
+	public static HttpCookie getCookie(String name) {
+
+		try {
+			List<HttpCookie> cookies = ((CookieManager) CookieHandler
+					.getDefault()).getCookieStore().get(
+					new URI(MainActivity.SERVER_URL));
+
+			for (HttpCookie co : cookies) {
+				if (co.getName().equals(name)) {
+					return co;
+				}
+			}
+		} catch (URISyntaxException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+		return null;
+	}
+
+	public static String readResponse(HttpURLConnection c) {
+		BufferedReader br;
+		try {
+			br = new BufferedReader(new InputStreamReader(c.getInputStream()));
+			StringBuilder sb = new StringBuilder();
+			String line;
+			while ((line = br.readLine()) != null) {
+				sb.append(line + "\n");
+			}
+			br.close();
+			return sb.toString();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			return null;
+		}
+
+	}
+
+	public static HttpURLConnection getHttpUrlConnection(URL url)
+			throws IOException {
+
+		HttpURLConnection c = (HttpURLConnection) url.openConnection();
+		c.setRequestMethod("GET");
+		c.setRequestProperty("Content-length", "0");
+		c.setUseCaches(false);
+		c.setAllowUserInteraction(false);
+		c.setConnectTimeout(5000);
+		c.setReadTimeout(5000);
+		c.connect();
+
+		return c;
+	}
+
+	public static String createPost(List<NameValuePair> nameValuePairs) {
+		String out = "";
+		for (NameValuePair n : nameValuePairs) {
+			if (out.length() > 0) {
+				out = out + "&";
+			}
+			try {
+				out = out + URLEncoder.encode(n.getName(), "UTF-8") + "="
+						+ URLEncoder.encode(n.getValue(), "UTF-8");
+			} catch (UnsupportedEncodingException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+
+		return out;
+	}
+
 }

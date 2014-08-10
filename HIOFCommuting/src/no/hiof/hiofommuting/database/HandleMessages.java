@@ -1,5 +1,6 @@
 package no.hiof.hiofommuting.database;
 
+import java.net.HttpCookie;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -21,12 +22,12 @@ public class HandleMessages {
     public static int myID;
     public static int partnerID;
 
-	public static List<Conversation> getConversation(User sender, User receiver, Cookie cookie) {
+	public static List<Conversation> getConversation(User sender, User receiver, HttpCookie cookie) {
 		List<Conversation> chat = new ArrayList<Conversation>();
 		int user_id_sender = 0;
 		int user_id_receiver = 0;
 
-		String url = "http://" + MainActivity.SERVER_URL + "/hcserv.py?q=conversation&user_id_sender="
+		String url = MainActivity.SERVER_URL + "/hcserv.py?q=conversation&user_id_sender="
 				+ sender.getUserid()
 				+ "&user_id_receiver="
 				+ receiver.getUserid();
@@ -40,10 +41,11 @@ public class HandleMessages {
 				user_id_receiver = obj.getInt("user_id_receiver");
                 String message = obj.getString("message");
                 String sent = obj.getString("sent");
+                String read = obj.getString("read");
 
-                System.out.println("myID = " + myID);
-                System.out.println("user_id_sender = " + user_id_sender);
-                System.out.println("sender.getUserid() = " + sender.getUserid());
+                //System.out.println("myID = " + myID);
+                //System.out.println("user_id_sender = " + user_id_sender);
+                //System.out.println("sender.getUserid() = " + sender.getUserid());
 
 				User sendr = null;
 				User recvr = null;
@@ -58,7 +60,7 @@ public class HandleMessages {
 
                 chat.add(new Conversation(sendr, recvr, message, sent));
 
-                if (myID != user_id_sender) // If im not the sender..
+                if (read == "null" && myID != user_id_sender) // If im not the sender..
                     setMessageAsRead(user_id_sender, user_id_receiver, cookie);
             }
 		} catch (JSONException e) {
@@ -70,7 +72,7 @@ public class HandleMessages {
 	
 	public static boolean newMessage(User userLoggedIn, Context context) {
 
-		String url = "http://" + MainActivity.SERVER_URL + "/hcserv.py?q=newMessages&user_id_receiver="
+		String url = MainActivity.SERVER_URL + "/hcserv.py?q=newMessages&user_id_receiver="
 				+ userLoggedIn.getUserid();
 
 		//try {
@@ -96,7 +98,7 @@ public class HandleMessages {
 		}*/
 	}
 
-	private static void setMessageAsRead(final int sender, final int receiver, final Cookie cookie) {
+	private static void setMessageAsRead(final int sender, final int receiver, final HttpCookie cookie) {
 
 		Thread t = new Thread(new Runnable() {
 			@Override
@@ -108,7 +110,7 @@ public class HandleMessages {
 		t.start();
 	}
 
-	public static void sendMessage(final User sender, final User receiver, final String message, final Cookie cookie) {
+	public static void sendMessage(final User sender, final User receiver, final String message, final HttpCookie cookie) {
 
 		Thread t = new Thread(new Runnable() {
 			@Override
@@ -124,16 +126,16 @@ public class HandleMessages {
 	public static List<Inbox> getInbox(int userid_receiver, List<User> users, Context context) {
 		List<Inbox> inbox = new ArrayList<Inbox>();
 
-		String url = "http://" + MainActivity.SERVER_URL + "/hcserv.py?q=inbox&user_id_receiver="
+		String url = MainActivity.SERVER_URL + "/hcserv.py?q=inbox&user_id_receiver="
 				+ userid_receiver;
 		JSONArray inboxArray = new JsonParser().getJsonArray(url, HandleLogin.getCookie(context));
-		System.out.println("WORK!!");
-		System.out.println(inboxArray.toString());
+		//System.out.println("WORK!!");
+		//System.out.println(inboxArray.toString());
 		for (int i = 0; i < inboxArray.length(); i++) {
 			JSONObject obj;
 			try {
 				obj = inboxArray.getJSONObject(i);
-				System.out.println("Still works?" + obj.getString("message"));
+				//System.out.println("Still works?" + obj.getString("message"));
 				int userid = obj.getInt("user_id_sender");
 				User sender = null;
 				for (int ix = 0; ix < users.size(); ix++) {
@@ -141,9 +143,9 @@ public class HandleMessages {
 						sender = users.get(ix);
 					}
 				}
-				//System.out.println(sender.getSurname());
-				// System.out.println(obj.getInt("user_id_sender")+"");
-				// System.out.println(users.get(obj.getInt("user_id_sender")).getFirstName()+"");
+				////System.out.println(sender.getSurname());
+				// //System.out.println(obj.getInt("user_id_sender")+"");
+				// //System.out.println(users.get(obj.getInt("user_id_sender")).getFirstName()+"");
 				String message = obj.getString("message");
 				String sent = obj.getString("sent");
                 inbox.add(new Inbox(sender, message, sent));

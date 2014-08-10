@@ -45,7 +45,13 @@ public class TabListFragment extends Fragment {
 		userLoggedIn = ((TabListenerActivity)getActivity()).getUserLoggedIn();
 		filter = ((TabListenerActivity)getActivity()).getFilter();
 	}
-
+	
+	@Override
+	public void onHiddenChanged(boolean hidden) {
+		// TODO Auto-generated method stub
+		super.onHiddenChanged(hidden);
+	}
+	
 	@Override
 	public void onResume(){
 		super.onResume();
@@ -108,7 +114,7 @@ public class TabListFragment extends Fragment {
                     return User.userList;
                 }
 			} catch (NullPointerException e) {
-				System.out.println("Returns null in doInBackground: TabListFragment.java");
+				//System.out.println("Returns null in doInBackground: TabListFragment.java");
 				return null;
 			}
 		}

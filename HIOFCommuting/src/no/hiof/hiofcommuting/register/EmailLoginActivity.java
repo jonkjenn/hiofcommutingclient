@@ -69,7 +69,7 @@ public class EmailLoginActivity extends FragmentActivity {
 		registerData.add(email);
 		registerData.add(password);
 		registerData.add(repeatPassword);
-		Util.showFragment(FINISH, fm,fragments, "Fullf�r profil", weakActivity);
+		Util.showFragment(FINISH, fm,fragments, "Fullfør profil", weakActivity);
 	}
 	
 	public ArrayList<String> getRegistrationList() {

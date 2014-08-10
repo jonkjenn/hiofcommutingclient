@@ -1,20 +1,16 @@
 package no.hiof.hiofcommuting.chat;
 
-import java.text.DecimalFormat;
 import java.util.List;
 
+import no.hiof.hiofcommuting.R;
 import no.hiof.hiofcommuting.objects.Conversation;
 import no.hiof.hiofcommuting.objects.User;
-
-import no.hiof.hiofcommuting.R;
-
 import android.content.Context;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
-import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 

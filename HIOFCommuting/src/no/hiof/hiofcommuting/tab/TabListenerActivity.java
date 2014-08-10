@@ -1,12 +1,15 @@
 package no.hiof.hiofcommuting.tab;
 
+import java.io.IOException;
 import java.util.List;
 
 import no.hiof.hiofcommuting.R;
+import no.hiof.hiofcommuting.chat.ChatActivity;
 import no.hiof.hiofcommuting.hiofcommuting.ChatService;
 import no.hiof.hiofcommuting.hiofcommuting.MainActivity;
 import no.hiof.hiofcommuting.objects.Filter;
 import no.hiof.hiofcommuting.objects.User;
+import no.hiof.hiofcommuting.util.HTTPClient;
 import no.hiof.hiofommuting.database.HandleLogin;
 import no.hiof.hiofommuting.database.HandleUsers;
 import android.app.ActionBar;
@@ -15,6 +18,7 @@ import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnClickListener;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -32,13 +36,21 @@ import android.widget.CheckBox;
 import android.widget.NumberPicker;
 
 import com.facebook.Session;
+import com.google.android.gms.gcm.GoogleCloudMessaging;
 
 public class TabListenerActivity extends FragmentActivity implements
 		ActionBar.TabListener {
 
 	private User userLoggedIn;
 	private Filter filter;
-	
+
+	public static final String PROPERTY_REG_ID = "registration_id";
+	private final static int PLAY_SERVICES_RESOLUTION_REQUEST = 9000;
+
+	String SENDER_ID = "299457056241";
+
+	GoogleCloudMessaging gcm;
+	SharedPreferences prefs;
 
 	private FilterUsersFragment filterUserFragment = null;
 
@@ -49,6 +61,7 @@ public class TabListenerActivity extends FragmentActivity implements
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+
 		// Receive current user logged in
 		setUserLoggedIn((User) getIntent().getSerializableExtra("CURRENT_USER"));
 		// profilePic = (Bitmap)getIntent().getParcelableExtra("PROFILE_PIC");
@@ -57,21 +70,21 @@ public class TabListenerActivity extends FragmentActivity implements
 		try {
 			session = (Session) getIntent().getSerializableExtra(
 					"FACEBOOK_SESSION");
-			System.out.println(session.getState());
-			System.out.println("Logget in with Facebook");
+			// System.out.println(session.getState());
+			// System.out.println("Logget in with Facebook");
 		} catch (NullPointerException e) {
-			System.out.println("Logget in with email");
+			// System.out.println("Logget in with email");
 		}
-		
+
 		String not = getIntent().getStringExtra("SERVICE");
-		System.out.println("Service : " + not);
-		System.out.println("Starter service");
+		// System.out.println("Service : " + not);
+		// System.out.println("Starter service");
 		Intent chatServiceIntent = new Intent(this, ChatService.class);
 		chatServiceIntent.putExtra("CURRENT_USER", userLoggedIn);
 		startService(chatServiceIntent);
-		//String notification = 
-		System.out.println("User logged in is "
-				+ getUserLoggedIn().getUserid());
+		// String notification =
+		// System.out .println("User logged in is " +
+		// getUserLoggedIn().getUserid());
 
 		if (savedInstanceState == null) {
 			getSupportFragmentManager().beginTransaction()
@@ -94,7 +107,59 @@ public class TabListenerActivity extends FragmentActivity implements
 		actionBar.addTab(actionBar.newTab().setText(R.string.tab_inbox)
 				.setTabListener(this));
 
+		gcm_setup();
+
 		getUsersThread();
+
+		if (getIntent().getExtras() != null
+				&& getIntent().getExtras().containsKey("sender_id")) {
+			Intent intent = new Intent(this, ChatActivity.class);
+			intent.putExtra("CURRENT_USER", userLoggedIn);
+			intent.putExtra(
+					"SELECTED_USER",
+					new User(Integer.parseInt(getIntent().getExtras()
+							.getString("sender_id")), getIntent().getExtras()
+							.getString("sender_firstname"), getIntent()
+							.getExtras().getString("sender_surname")));
+			startActivity(intent);
+		}
+
+		/*
+		 * int convId = getIntent().getExtras().getInt("conversationid"); if
+		 * (convId > 0) { onTabSelected(actionBar.getTabAt(2), null); }
+		 */
+	}
+
+	private void gcm_setup() {
+		gcm = GoogleCloudMessaging.getInstance(this);
+		if (userLoggedIn.getGcmId().isEmpty()
+				|| userLoggedIn.getGcmId().equals("null")) {
+			registerInBackground();
+		}
+	}
+
+	private void registerInBackground() {
+		new AsyncTask<Void, Void, Void>() {
+
+			@Override
+			protected Void doInBackground(Void... params) {
+				try {
+					if (gcm == null) {
+						gcm = GoogleCloudMessaging
+								.getInstance(TabListenerActivity.this);
+					}
+					String regid = gcm.register(SENDER_ID);
+
+					HTTPClient.insertGcmId(regid,
+							HandleLogin.getCookie(TabListenerActivity.this));
+
+					userLoggedIn.setGcmId(regid);
+				} catch (IOException ex) {
+
+				}
+				return null;
+			}
+		}.execute();
 	}
 
 	private void getUsersThread() {
@@ -105,9 +170,10 @@ public class TabListenerActivity extends FragmentActivity implements
 				try {
 					setUserList(HandleUsers.getAllUsers(getBaseContext(),
 							getUserLoggedIn(), getFilter()));
-					System.out.println("Get users done");
+					// System.out.println("Get users done");
 				} catch (NullPointerException e) {
-					Log.e("ITCRssReader", e.getMessage());
+					// //Log.e("ITCRssReader", "Get all users failed" +
+					// e.getMessage());
 				}
 			}
 		});
@@ -145,7 +211,7 @@ public class TabListenerActivity extends FragmentActivity implements
 		case R.id.action_settings:
 			return true;
 		case R.id.newActivity:
-			System.out.println("Logging out");
+			// System.out.println("Logging out");
 			performLogout();
 			return true;
 		case R.id.filter_user:
@@ -211,11 +277,13 @@ public class TabListenerActivity extends FragmentActivity implements
 		if (cbcar.isChecked())
 			car = true;
 		if (cbdistance.isChecked())
-			distance = (double)npdistance.getValue();
+			distance = (double) npdistance.getValue();
 
-        Filter.isFilterSet = institution || campus || department || study || startingyear || car || cbdistance.isChecked();
+		Filter.isFilterSet = institution || campus || department || study
+				|| startingyear || car || cbdistance.isChecked();
 
-		setFilter(new Filter(studyId, distance, institution, campus, department, study, startingyear, car));
+		setFilter(new Filter(studyId, distance, institution, campus,
+				department, study, startingyear, car));
 
 		if (filterUserFragment != null && filterUserFragment.isVisible()) {
 			// Hide fragment
@@ -231,23 +299,26 @@ public class TabListenerActivity extends FragmentActivity implements
 
 		FragmentManager fm = getSupportFragmentManager();
 		int stackCount = fm.getBackStackEntryCount();
-		BackStackEntry previousFragment = fm.getBackStackEntryAt(stackCount-1);
-		if(previousFragment.getName().equalsIgnoreCase("Map")){
+		BackStackEntry previousFragment = fm
+				.getBackStackEntryAt(stackCount - 1);
+		if (previousFragment.getName().equalsIgnoreCase("Map")) {
 			Fragment tm = new TabMapFragment();
-			fm.beginTransaction().replace(R.id.fragment_tab_container, tm).commit();
-		} 
-		else if(previousFragment.getName().equalsIgnoreCase("List")) {
+			fm.beginTransaction().replace(R.id.fragment_tab_container, tm)
+					.commit();
+		} else if (previousFragment.getName().equalsIgnoreCase("List")) {
 			Fragment tl = new TabListFragment();
-			fm.beginTransaction().replace(R.id.fragment_tab_container, tl).commit();
-		}
-		else {
+			fm.beginTransaction().replace(R.id.fragment_tab_container, tl)
+					.commit();
+		} else {
 			Fragment ti = new TabInboxFragment();
-			getSupportFragmentManager().beginTransaction().replace(R.id.fragment_tab_container, ti).addToBackStack("Chat").commit();
+			getSupportFragmentManager().beginTransaction()
+					.replace(R.id.fragment_tab_container, ti)
+					.addToBackStack("Chat").commit();
 		}
 	}
 
 	private void performLogout() {
-		
+
 		HandleLogin.deleteCookie(this);
 
 		if (session != null) {
@@ -255,14 +326,15 @@ public class TabListenerActivity extends FragmentActivity implements
 				session = Session.getActiveSession();
 				session.closeAndClearTokenInformation();
 			} catch (NullPointerException e) {
-				System.out
-						.println("performLogout(): User was logged in with email");
+				// System.out
+				// .println("performLogout(): User was logged in with email");
 			}
 		}
 		setUserLoggedIn(null);
-		//userLoggedIn = null;
+		// userLoggedIn = null;
 		User.userList.clear();
-		//setUserList(null); //reset users in map/list because distance is related to the users logged in
+		// setUserList(null); //reset users in map/list because distance is
+		// related to the users logged in
 		Intent intent = new Intent(this, MainActivity.class);
 		startActivity(intent);
 		finish();
@@ -275,7 +347,7 @@ public class TabListenerActivity extends FragmentActivity implements
 	public void setUserLoggedIn(User userLoggedIn) {
 		this.userLoggedIn = userLoggedIn;
 	}
-	
+
 	public Filter getFilter() {
 		return filter;
 	}
@@ -289,10 +361,9 @@ public class TabListenerActivity extends FragmentActivity implements
 	}
 
 	public void setUserList(List<User> users) {
-        User.userList = users;
+		User.userList = users;
 	}
-	
-	
+
 	/**
 	 * A placeholder fragment containing a simple view.
 	 */
@@ -315,25 +386,28 @@ public class TabListenerActivity extends FragmentActivity implements
 		if (tab.getPosition() == 0) {
 			Fragment tm = new TabMapFragment();
 			getSupportFragmentManager().beginTransaction()
-					.replace(R.id.fragment_tab_container, tm).addToBackStack("Map").commit();
-			System.out.println("Map");
+					.replace(R.id.fragment_tab_container, tm)
+					.addToBackStack("Map").commit();
+			// System.out.println("Map");
 			setTitle("Kart");
 		}
 		if (tab.getPosition() == 1) {
 			Fragment tl = new TabListFragment();
 			getSupportFragmentManager().beginTransaction()
-					.replace(R.id.fragment_tab_container, tl).addToBackStack("List").commit();
-			System.out.println("Liste");
+					.replace(R.id.fragment_tab_container, tl)
+					.addToBackStack("List").commit();
+			// System.out.println("Liste");
 			setTitle("Liste");
 		}
 		if (tab.getPosition() == 2) {
 			Fragment ti = new TabInboxFragment();
 			getSupportFragmentManager().beginTransaction()
-					.replace(R.id.fragment_tab_container, ti).addToBackStack("Chat").commit();
-			System.out.println("Inbox");
+					.replace(R.id.fragment_tab_container, ti)
+					.addToBackStack("Chat").commit();
+			// System.out.println("Inbox");
 			setTitle("Inbox");
 		}
-		
+
 	}
 
 	@Override
@@ -347,39 +421,38 @@ public class TabListenerActivity extends FragmentActivity implements
 
 		}
 	}
-	
-	
-	private void avmelding()
-	{
+
+	private void avmelding() {
 		AlertDialog.Builder ab = new AlertDialog.Builder(this);
 		ab.setMessage("Bekreft at du vil slette din konto")
-		.setPositiveButton("Slett konto", new OnClickListener() {
-			
-			@Override
-			public void onClick(DialogInterface arg0, int arg1) {
-				new AsyncTask<Void, Void, Void>() {
+				.setPositiveButton("Slett konto", new OnClickListener() {
 
 					@Override
-					protected Void doInBackground(Void... params) {
-                        HandleUsers.deleteUser(TabListenerActivity.this, userLoggedIn.getUserid());
-						return null;
+					public void onClick(DialogInterface arg0, int arg1) {
+						new AsyncTask<Void, Void, Void>() {
+
+							@Override
+							protected Void doInBackground(Void... params) {
+								HandleUsers.deleteUser(
+										TabListenerActivity.this,
+										userLoggedIn.getUserid());
+								return null;
+							}
+
+							protected void onPostExecute(Void result) {
+								performLogout();
+							}
+
+						}.execute();
 					}
-					
-					protected void onPostExecute(Void result) {
-						performLogout();
+				}).setNegativeButton("Avbryt", new OnClickListener() {
+
+					@Override
+					public void onClick(DialogInterface dialog, int which) {
+						dialog.cancel();
 					}
-					
-				}.execute();
-			}
-		})
-		.setNegativeButton("Avbryt", new OnClickListener() {
-			
-			@Override
-			public void onClick(DialogInterface dialog, int which) {
-				dialog.cancel();
-			}
-		});
-		
+				});
+
 		ab.create().show();
 	}
 }

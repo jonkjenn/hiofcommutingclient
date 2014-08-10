@@ -41,7 +41,7 @@ public class CustomInboxListView extends ArrayAdapter<Inbox>{
 
         final User sender = objects.get(position).getSender();
         if(sender != null) {
-	        System.out.println("name " + sender.getFirstName());
+	        //System.out.println("name " + sender.getFirstName());
 	        
 	        ImageHandler.setBitmapFromPath(profilePic, sender.getImagePath());
 	
@@ -49,8 +49,7 @@ public class CustomInboxListView extends ArrayAdapter<Inbox>{
 			message.setText(objects.get(position).getMessage());
 			date.setText(objects.get(position).getSent());
         }
-        else 
-        	System.out.println("Sender er null");
+        	//System.out.println("Sender er null");
 		
 		return rowView;
 	}

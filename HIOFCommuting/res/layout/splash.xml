@@ -19,22 +19,10 @@
                 android:layout_marginLeft="10dp"
                 android:gravity="center"
                 android:contentDescription="Logo"
-                android:src="@drawable/hiofcommutinglogo" />
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="123dp"
-            android:layout_gravity="center"
-            android:gravity="center"
-            android:text="@string/app_name"
-            android:textColor="#AFDEFE"
-            android:textSize="28sp"
-            android:textStyle="italic"
-            android:typeface="serif" />
-
+                android:src="@drawable/campuskjoring" />
     </LinearLayout>
 
-    <com.facebook.widget.LoginButton
+    <!-- <com.facebook.widget.LoginButton
    		xmlns:fb="http://schemas.android.com/apk/res-auto"
         android:id="@+id/login_button"
         android:layout_width="wrap_content"
@@ -43,14 +31,14 @@
         android:layout_marginTop="30dp"
         android:layout_marginBottom="30dp"
         fb:login_text="Logg inn med facebook"
-        fb:logout_text="Logg inn med facebook"/>
+        fb:logout_text="Logg inn med facebook"/>-->
 
-    <android.widget.Button
+<!--   <android.widget.Button
         android:id="@+id/loginButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center_horizontal"
         android:onClick="loggInnMedEpost"
-        android:text="@string/button_alternatelogin" />
+        android:text="@string/button_alternatelogin" />-->
 
 </LinearLayout>

@@ -39,7 +39,7 @@ public class Util {
 		try {
 			ExifInterface exif = new ExifInterface(imagePath);
 			int orientation = exif.getAttributeInt(ExifInterface.TAG_ORIENTATION, 1);
-			System.out.println("EXIF" + exif +  "orientation");
+			//System.out.println("EXIF" + exif +  "orientation");
 			
 			Matrix matrix = new Matrix();
 			if (orientation == 3) {

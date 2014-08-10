@@ -1,39 +1,17 @@
 package no.hiof.hiofcommuting.chat;
 
-import java.util.List;
-
-import no.hiof.hiofcommuting.objects.Conversation;
-import no.hiof.hiofcommuting.objects.User;
-import no.hiof.hiofcommuting.tab.CustomListListView;
-import no.hiof.hiofcommuting.tab.TabListenerActivity;
-import no.hiof.hiofcommuting.tab.TabListenerActivity.PlaceholderFragment;
-import no.hiof.hiofommuting.database.HandleMessages;
-import no.hiof.hiofommuting.database.HandleUsers;
-
 import no.hiof.hiofcommuting.R;
-import no.hiof.hiofcommuting.R.id;
-import no.hiof.hiofcommuting.R.layout;
-import no.hiof.hiofcommuting.R.menu;
-
-import android.app.Activity;
-import android.app.ActionBar;
+import no.hiof.hiofcommuting.objects.User;
 import android.app.Fragment;
-import android.app.ProgressDialog;
-import android.content.Context;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ListView;
-import android.widget.TextView;
-import android.os.Build;
 
 public class ChatActivity extends FragmentActivity {
 
@@ -46,6 +24,16 @@ public class ChatActivity extends FragmentActivity {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_chat);
 
+		try{
+			setUserLoggedIn((User) getIntent().getSerializableExtra("CURRENT_USER"));
+			setUserToChatWith((User) getIntent().getSerializableExtra("SELECTED_USER"));
+			//System.out.println("Du heter "+userLoggedIn.getFirstName());
+			//System.out.println("Du chatter med "+userToChatWith.getFirstName());
+			setTitle(userToChatWith.getFirstName()+" " + userToChatWith.getSurname());
+		}catch(NullPointerException e){
+			
+		}
+
 		if (savedInstanceState == null) {
 			getSupportFragmentManager().beginTransaction().add(R.id.container, new ChatFragment()).commit();
 			FragmentManager fm = getSupportFragmentManager();
@@ -54,15 +42,6 @@ public class ChatActivity extends FragmentActivity {
 			transaction.add(R.id.container, pf);
 		}
 		
-		try{
-			setUserLoggedIn((User) getIntent().getSerializableExtra("CURRENT_USER"));
-			setUserToChatWith((User) getIntent().getSerializableExtra("SELECTED_USER"));
-			System.out.println("Du heter "+userLoggedIn.getFirstName());
-			System.out.println("Du chatter med "+userToChatWith.getFirstName());
-			setTitle(userToChatWith.getFirstName()+"");
-		}catch(NullPointerException e){
-			
-		}
 	}
 
 	@Override

@@ -1,25 +1,32 @@
 package no.hiof.hiofommuting.database;
 
-import java.io.ByteArrayOutputStream;
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.net.CookieHandler;
+import java.net.CookieManager;
+import java.net.HttpCookie;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URL;
 import java.util.List;
 
-import org.apache.http.HttpResponse;
-import org.apache.http.HttpStatus;
-import org.apache.http.StatusLine;
-import org.apache.http.client.ClientProtocolException;
-import org.apache.http.client.methods.HttpGet;
+import no.hiof.hiofcommuting.hiofcommuting.MainActivity;
+import no.hiof.hiofcommuting.util.HTTPClient;
+
 import org.apache.http.cookie.Cookie;
-import org.apache.http.impl.client.DefaultHttpClient;
 import org.json.JSONArray;
 import org.json.JSONException;
+
 
 public class JsonParser {
 
 	public boolean saveCookie = false;
-	public Cookie cookie;
+	public HttpCookie cookie;
 
-	public JSONArray getJsonArray(String url, Cookie cookie) {
+	/*public JSONArray getJsonArray(String url, Cookie cookie) {
 		DefaultHttpClient httpclient = new DefaultHttpClient();
 
 		if (cookie != null) {
@@ -63,9 +70,45 @@ public class JsonParser {
 			// TODO Auto-generated catch block
 			return null;
 		}
+	}*/
+	
+	public JSONArray getJsonArray(String url, HttpCookie cookie) {
+	    try {
+	    	
+	    	if(cookie != null)
+	    	{
+	    		HTTPClient.addCookie(cookie);
+	    	}
+	    	
+	        URL u = new URL(url);
+	        HttpURLConnection c = HTTPClient.getHttpUrlConnection(u);
+	        int status = c.getResponseCode();
+
+	        switch (status) {
+	            case 200:
+	            	String response = HTTPClient.readResponse(c);
+	            	
+	                if(saveCookie)
+	                {
+	                	saveCookie(HTTPClient.getCookie("hccook"));
+	                }
+				try {
+					return new JSONArray(response);
+				} catch (JSONException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+	        }
+
+	    } catch (MalformedURLException ex) {
+	    	return null;
+	    } catch (IOException ex) {
+	    	return null;
+	    }
+	    return null;
 	}
 
-	private void saveCookie(Cookie c) {
+	private void saveCookie(HttpCookie c) {
 		this.cookie = c;
 	}
 }

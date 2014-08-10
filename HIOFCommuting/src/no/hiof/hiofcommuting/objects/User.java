@@ -22,6 +22,7 @@ public class User implements Serializable{
 	private String fbId;
     public static List<User> userList;
     public static boolean isUserListFiltered;
+    private String gcmId;
 
     // When creating ListView
     public User(String firstname, String department, String institution, double distance, String imagePath, String fbId){
@@ -35,7 +36,7 @@ public class User implements Serializable{
 
 	public User(int userid, int studyid, String firstname, String surname, double lat, double lon, double distance,
 			String institution, String campus, String department,
-			String study, int startingYear, boolean car, String photoUrl, String fbId) {
+			String study, int startingYear, boolean car, String photoUrl, String fbId, String gcmId) {
 		this.userId = userid;
 		this.studyId = studyid;
 		this.firstname = firstname;
@@ -52,6 +53,14 @@ public class User implements Serializable{
 		this.photoUrl = photoUrl;
 		this.fbId = fbId;
         this.imagePath = "";
+        this.gcmId = gcmId;
+	}
+	
+	public User(int userid, String firstname, String surname)
+	{
+		this.userId = userid;
+		this.firstname = firstname;
+		this.surname = surname;
 	}
 
     public boolean hasCar() {
@@ -83,6 +92,11 @@ public class User implements Serializable{
     public String getFirstName() {
         return firstname;
     }
+    
+    public String getSurname(){
+    	return surname;
+    }
+    
     public String getInstitution() {
         return institution;
     }
@@ -116,5 +130,15 @@ public class User implements Serializable{
     }
     public void setImagePath(String imagePath){
         this.imagePath = imagePath;
+    }
+    
+    public String getGcmId()
+    {
+    	return this.gcmId;
+    }
+    
+    public void setGcmId(String gcmId)
+    {
+    	this.gcmId = gcmId;
     }
 }

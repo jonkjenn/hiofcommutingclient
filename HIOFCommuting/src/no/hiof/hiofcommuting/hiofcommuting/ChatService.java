@@ -84,7 +84,7 @@ public class ChatService extends IntentService {
 							.setContentTitle("HiofCommuting")
 							.setContentText(
 									"Du har en ny melding")
-							.setSmallIcon(R.drawable.hiofcommutinglogo).setContentIntent(pIntent)
+							.setSmallIcon(R.drawable.campuskjoring_72).setContentIntent(pIntent)
 							.build();
 
 					n.flags = Notification.FLAG_AUTO_CANCEL;

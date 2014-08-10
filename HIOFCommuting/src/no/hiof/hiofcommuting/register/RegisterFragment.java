@@ -1,12 +1,14 @@
 package no.hiof.hiofcommuting.register;
 
+import no.hiof.hiofcommuting.R;
+import no.hiof.hiofcommuting.util.UserInputValidator;
+import no.hiof.hiofcommuting.util.Util;
 import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.Environment;
 import android.provider.MediaStore;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
@@ -17,13 +19,6 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.Toast;
-
-import no.hiof.hiofcommuting.R;
-
-import java.io.*;
-
-import no.hiof.hiofcommuting.util.UserInputValidator;
-import no.hiof.hiofcommuting.util.Util;
 
 public class RegisterFragment extends Fragment implements OnClickListener {
 
@@ -79,12 +74,13 @@ public class RegisterFragment extends Fragment implements OnClickListener {
                 password = passwordEditText.getText().toString().trim();
                 repeatPassword = repeatPasswordEditText.getText().toString().trim();
                 
-                /*
+				//DEBUG REMOVE FROM APPP!!!!!!!!!!!!!!11
                 firstName = "abc";
                 lastName = "abc";
-                email = "abc@abc.com";
+                email = "a@hiof.no";
                 password = "qwertyu";
-                repeatPassword = password;*/
+                repeatPassword = password;
+				//DEBUG REMOVE FROM APPP!!!!!!!!!!!!!!11
 
                 UserInputValidator validator = new UserInputValidator();
 

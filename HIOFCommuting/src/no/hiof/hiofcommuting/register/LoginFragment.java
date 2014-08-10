@@ -1,15 +1,13 @@
 package no.hiof.hiofcommuting.register;
 
+import java.net.HttpCookie;
+
 import no.hiof.hiofcommuting.R;
 import no.hiof.hiofcommuting.objects.User;
 import no.hiof.hiofommuting.database.HandleLogin;
-
-import org.apache.http.cookie.Cookie;
-
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -34,27 +32,40 @@ public class LoginFragment extends Fragment {
 	@Override
 	public void onActivityCreated(Bundle savedInstanceState) {
 		super.onActivityCreated(savedInstanceState);
-		Button login = (Button)getView().findViewById(R.id.loginButton);
+		Button login = (Button) getView().findViewById(R.id.loginButton);
 
-        (getView().findViewById(R.id.login_editText_email)).requestFocus();
+		(getView().findViewById(R.id.login_editText_email)).requestFocus();
 
 		login.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View v) {
-            	// Henter brukerinput
-        		String email = ((EditText) getView().findViewById(R.id.login_editText_email))
-        						.getText().toString();
-        		String password = ((EditText) getView().findViewById(R.id.login_editText_passord))
-        						.getText().toString();
-                validateUserInput(email, password);
-            }
-        });
-		
-		
-        new ValidateUser().execute(new String[]{"",""});
+			public void onClick(View v) {
+				// Henter brukerinput
+				String email = ((EditText) getView().findViewById(
+						R.id.login_editText_email)).getText().toString();
+				String password = ((EditText) getView().findViewById(
+						R.id.login_editText_passord)).getText().toString();
+				validateUserInput(email, password);
+			}
+		});
+
+		HttpCookie c = HandleLogin.getCookie(getActivity());
+
+		if (c != null) {
+
+			new ValidateUser().execute(new String[] { "", "" });
+		} else {
+
+			Bundle e = getActivity().getIntent().getExtras();
+
+			if (e != null && e.containsKey("email")) {
+
+				new ValidateUser().execute(new String[] { e.getString("email"),
+						e.getString("password") });
+			}
+		}
 	}
 
 	public void validateUserInput(String email, String password) {
-		//Forbereder toast-melding
+		// Forbereder toast-melding
 		CharSequence toastMessage = null;
 
 		// Sjekker om brukeren har fyllt inn data
@@ -62,7 +73,7 @@ public class LoginFragment extends Fragment {
 			// Sjekker om brukeren har prøvd å logge inn med feil passord for
 			// mange ganger
 			if (attempts > 0) {
-				String[] userInput = {email, password};
+				String[] userInput = { email, password };
 				new ValidateUser().execute(userInput);
 			} else {
 				toastMessage = "Glemt passord?";
@@ -78,16 +89,14 @@ public class LoginFragment extends Fragment {
 			Toast.makeText(context, toastMessage, duration).show();
 		}
 	}
-	
+
 	/**
 	 * 
 	 * @author Martin Validerer brukerinput opp mot database. Kjøres i AsyncTask
 	 *         da dette er en tyngre oppgave.
 	 */
 
-	
-	public class ValidateUser extends
-			AsyncTask<String[], Void, Boolean> {
+	public class ValidateUser extends AsyncTask<String[], Void, Boolean> {
 
 		private ProgressDialog Dialog = new ProgressDialog(getActivity());
 		private String errorMessage;
@@ -101,39 +110,44 @@ public class LoginFragment extends Fragment {
 
 		@Override
 		protected Boolean doInBackground(String[]... params) {
-			System.out.println("Validating");
+			//System.out.println("Validating");
 			String[] userInput = params[0];
 			String email = userInput[0];
 			String password = userInput[1];
 
-			Boolean authenticated = HandleLogin.checkUnAndPw(email,password, getActivity());
-			if(HandleLogin.cookie != null){
+			Boolean authenticated = HandleLogin.checkUnAndPw(email, password,
+					getActivity());
+			if (HandleLogin.cookie != null) {
 				HandleLogin.saveCookie(HandleLogin.cookie, getActivity());
 				HandleLogin.cookie = null;
 			}
 			if (authenticated) {
-				userLoggedIn = HandleLogin.getCurrentEmailUserLoggedIn(email, getActivity());
+				userLoggedIn = HandleLogin.getCurrentEmailUserLoggedIn(email,
+						getActivity());
 				return true;
 			} else {
 				HandleLogin.deleteCookie(getActivity());
-				errorMessage = "Feil brukernavn eller passord. " + (--attempts) + " forsøk igjen.";
+				errorMessage = "Feil brukernavn eller passord. " + (--attempts)
+						+ " forsøk igjen.";
 			}
 			return false;
 		}
-		
+
 		@Override
 		protected void onPostExecute(Boolean result) {
-			//ValiderBrukerFerdig(result);
+			// ValiderBrukerFerdig(result);
 			Dialog.dismiss();
-			if(result){
-				Intent intent = new Intent(getActivity(), no.hiof.hiofcommuting.tab.TabListenerActivity.class);
+			if (result) {
+				Intent intent = new Intent(getActivity(),
+						no.hiof.hiofcommuting.tab.TabListenerActivity.class);
 				intent.putExtra("CURRENT_USER", userLoggedIn);
 				startActivity(intent);
 				getActivity().finish();
-			}else {
-				Toast.makeText(getActivity(), errorMessage, Toast.LENGTH_SHORT).show();
+			} else {
+				Toast.makeText(getActivity(), errorMessage, Toast.LENGTH_SHORT)
+						.show();
 			}
 		}
-		
+
 	}
 }

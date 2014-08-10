@@ -4,6 +4,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.net.HttpCookie;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
@@ -15,16 +16,14 @@ import no.hiof.hiofcommuting.objects.Institution;
 import no.hiof.hiofcommuting.objects.Study;
 import no.hiof.hiofcommuting.objects.User;
 import no.hiof.hiofcommuting.util.FileUploader;
+import no.hiof.hiofcommuting.util.HTTPClient;
 import no.hiof.hiofcommuting.util.UserInputValidator;
 import no.hiof.hiofommuting.database.HandleLogin;
 import no.hiof.hiofommuting.database.HandleUsers;
 import no.hiof.hiofommuting.database.JsonParser;
 
-import org.apache.http.cookie.Cookie;
-import org.apache.http.impl.cookie.BasicClientCookie;
 import org.json.JSONArray;
 import org.json.JSONException;
-import org.json.JSONObject;
 
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -88,8 +87,9 @@ public class FinishProfileFragment extends Fragment {
 	}
 
 	@Override
-	public void onStart() {
-		super.onStart();
+	public void onViewCreated(View view, Bundle savedInstanceState) {
+		super.onViewCreated(view, savedInstanceState);
+
 		departmentSpinner = (Spinner) getView().findViewById(
 				R.id.departmentSpinner);
 		studySpinner = (Spinner) getView().findViewById(R.id.studySpinner);
@@ -106,7 +106,42 @@ public class FinishProfileFragment extends Fragment {
 		postalCodeEditText = (EditText) getView().findViewById(R.id.postal);
 		addOnClickListeners();
 		addDataToStartingYearSpinner();
-		new Read().execute();
+
+	}
+
+	@Override
+	public void onHiddenChanged(boolean hidden) {
+		// TODO Auto-generated method stub
+		super.onHiddenChanged(hidden);
+		if (!hidden
+				&& (institutionObjects.size() < 1
+						|| departmentObjects.size() < 1 || studyObjects.size() < 1)) {
+			new Read().execute();
+		}
+	}
+
+	@Override
+	public void setUserVisibleHint(boolean isVisibleToUser) {
+		super.setUserVisibleHint(isVisibleToUser);
+
+		if (isVisible()) {
+			if (institutionObjects.size() < 1) {
+				Toast.makeText(getActivity(), "Laster data...",
+						Toast.LENGTH_SHORT);
+				new Read().execute();
+			}
+		}
+	}
+
+	@Override
+	public void onStart() {
+		super.onStart();
+	}
+
+	@Override
+	public void onResume() {
+		// TODO Auto-generated method stub
+		super.onResume();
 	}
 
 	public void makeMeRequest(final Session session) {
@@ -122,10 +157,10 @@ public class FinishProfileFragment extends Fragment {
 								fbFirstName = user.getFirstName();
 								fbSurName = user.getLastName();
 								fbId = user.getId();
-								System.out.println("facebook id "
-										+ user.getId());
-								System.out.println("facebook username "
-										+ user.getUsername());
+								// System.out.println("facebook id " +
+								// user.getId());
+								// System.out.println("facebook username " +
+								// user.getUsername());
 								navigateToMap();
 							}
 						}
@@ -159,19 +194,22 @@ public class FinishProfileFragment extends Fragment {
 		// User user = createUserObject();
 
 	}
-	
-	private void afterInsert()
-	{
-		Intent intent = new Intent(getActivity(),
-				no.hiof.hiofcommuting.tab.TabListenerActivity.class);
-		intent.putExtra("CURRENT_USER", u);
 
-		if (facebookUser) {
-			Session session;
-			session = ((MainActivity) getActivity()).getFacebookSession();
-			intent.putExtra("FACEBOOK_SESSION", session);
-		}
+	private void afterInsert(String email, String password) {
+		Intent intent = new Intent(getActivity(), EmailLoginActivity.class);
+		intent.putExtra("email", email);
+		intent.putExtra("password", password);
 		startActivity(intent);
+		// Intent intent = new Intent(getActivity(),
+		// no.hiof.hiofcommuting.tab.TabListenerActivity.class);
+		// intent.putExtra("CURRENT_USER", u);
+		//
+		// // if (facebookUser) {
+		// // Session session;
+		// // session = ((MainActivity) getActivity()).getFacebookSession();
+		// // intent.putExtra("FACEBOOK_SESSION", session);
+		// // }
+		// startActivity(intent);
 		getActivity().finish();
 	}
 
@@ -196,17 +234,17 @@ public class FinishProfileFragment extends Fragment {
 					postalCode);
 			return latlon;
 		}
-		
+
 		@Override
 		protected void onPostExecute(double[] result) {
 			super.onPostExecute(result);
-			insertUserToDb(result[0],result[1]);
+			insertUserToDb(result[0], result[1]);
 		}
 	}
 
-	private void insertUserToDb(double lat, double lon) {
-		String firstName, surName;
-		String photoUrl;
+	private void insertUserToDb(final double lat, final double lon) {
+		final String firstName, surName;
+		final String photoUrl;
 		if (!facebookUser) {
 			firstName = registerData.get(0);
 			surName = registerData.get(1);
@@ -218,51 +256,76 @@ public class FinishProfileFragment extends Fragment {
 			// TODO: FIX photoUrl
 			photoUrl = "";
 		}
-		System.out.println("lat1 : " + lat);
-		System.out.println("lon1 : " + lon);
-		double distance = 0.0;
-		String institution = finishProfileData.get(2);
-		String campus = finishProfileData.get(3);
-		String department = finishProfileData.get(4);
-		String study = finishProfileData.get(5);
+		// System.out.println("lat1 : " + lat);
+		// System.out.println("lon1 : " + lon);
+		final double distance = 0.0;
+		final String institution = finishProfileData.get(2);
+		final String campus = finishProfileData.get(3);
+		final String department = finishProfileData.get(4);
+		final String study = finishProfileData.get(5);
 		int studyId = 0;
-		System.out.println("studyid 1" + study);
+		// System.out.println("studyid 1" + study);
 		for (int i = 0; i < studyObjects.size(); i++) {
 			if (studyObjects.get(i).getStudyName().equals(study)) {
-				System.out.println("studyid 2"
-						+ studyObjects.get(i).getStudyName());
+				// System.out.println("studyid 2" +
+				// studyObjects.get(i).getStudyName());
 				studyId = studyObjects.get(i).getStudyId();
-				System.out.println("studyid 3" + studyId);
+				// System.out.println("studyid 3" + studyId);
+				break;
 			}
 		}
-		int startingYear = Integer.parseInt(finishProfileData.get(6));
-		System.out.println("starting yr : " + startingYear);
-		boolean car = false;
+		final int fstudyId = studyId;
+		final int startingYear = Integer.parseInt(finishProfileData.get(6));
+		// System.out.println("starting yr : " + startingYear);
+		final boolean car;
 		if (finishProfileData.get(7).equals("Ja")) {
 			car = true;
+		} else {
+			car = false;
 		}
 		if (facebookUser) {
-			Session session = ((MainActivity) getActivity()).getFacebookSession();
-			HandleUsers.insertFacebookUserToDb(studyId, firstName, surName,
-					lat, lon, distance, institution, campus, department, study,
-					startingYear, car, fbId, getActivity(), session);
+			// Session session = ((MainActivity) getActivity())
+			// .getFacebookSession();
+			// HandleUsers.insertFacebookUserToDb(studyId, firstName, surName,
+			// lat, lon, distance, institution, campus, department, study,
+			// startingYear, car, fbId, getActivity(), session);
 		} else {
-			HandleUsers.insertEmailUserToDb(studyId, firstName, surName, lat,
-					lon, distance, institution, campus, department, study,
-					startingYear, car, registerData, getActivity());
+
+			new AsyncTask<Void, Void, Boolean>() {
+				@Override
+				protected Boolean doInBackground(Void... params) {
+					return HTTPClient.insertEmailUser(fstudyId, firstName,
+							surName, lat, lon, distance, institution, campus,
+							department, study, startingYear, car, registerData,
+							FinishProfileFragment.this.getActivity());
+				}
+
+				@Override
+				protected void onPostExecute(Boolean result) {
+					// TODO Auto-generated method stub
+					super.onPostExecute(result);
+					if (result) {
+						createUserObj(fstudyId, firstName, surName, lat, lon,
+								distance, startingYear, car, photoUrl, "");
+						afterInsert(registerData.get(2), registerData.get(3));
+					} else {
+						Toast.makeText(getActivity(),
+								"Feil ved registrering. Vennligst prøv igjen.",
+								Toast.LENGTH_LONG).show();
+					}
+				}
+			}.execute();
+
 		}
-		createUserObj(studyId, firstName, surName, lat, lon, distance,
-				startingYear, car, photoUrl);
-		
-		afterInsert();
+
 	}
 
 	public void createUserObj(int studyId, String firstName, String surName,
 			double lat, double lon, double distance, int startingYearInt,
-			boolean car, String photoUrl) {
+			boolean car, String photoUrl, String gcmId) {
 		u = new User(nextAvailableUserId, studyId, firstName, surName, lat,
 				lon, distance, institution, campus, department, study,
-				startingYearInt, car, photoUrl, fbId);
+				startingYearInt, car, photoUrl, fbId, gcmId);
 	}
 
 	public void addDataToStartingYearSpinner() {
@@ -280,6 +343,9 @@ public class FinishProfileFragment extends Fragment {
 
 	public void addItemsOnSpinner() {
 		if (institutionObjects != null) {
+			if (getView() == null) {
+				return;
+			}
 			institutionSpinner = (Spinner) getView().findViewById(
 					R.id.institutionSpinner);
 			ArrayAdapter<Institution> adapter = new ArrayAdapter<Institution>(
@@ -337,18 +403,24 @@ public class FinishProfileFragment extends Fragment {
 						.getSelectedItem());
 				String activity = getActivity().toString();
 
-				/*
-				 * address = "båstadlundveien 6a"; postalCode = "1781";
-				 */
+				// DEBUG REMOVE FROM APPP!!!!!!!!!!!!!!11
+				address = "nystredet 8";
+				postalCode = "1772";
+				institution = "1";
+				department = "2";
+				study = "Bachelorstudium i ingeniørfag - data";
+				startingYear = "2014";
+				// DEBUG REMOVE FROM APPP!!!!!!!!!!!!!!11
 
-				if (activity
-						.startsWith("no.hiof.hiofcommuting.hiofcommuting.MainActivity")) {
-					facebookUser = true;
-					Session session;
-					session = ((MainActivity) getActivity())
-							.getFacebookSession();
-					makeMeRequest(session);
-				}
+				// if (activity
+				// .startsWith("no.hiof.hiofcommuting.hiofcommuting.MainActivity"))
+				// {
+				// // facebookUser = true;
+				// // Session session;
+				// // session = ((MainActivity) getActivity())
+				// // .getFacebookSession();
+				// // makeMeRequest(session);
+				// }
 				if (activity
 						.startsWith("no.hiof.hiofcommuting.register.EmailLoginActivity")) {
 					registerData = ((EmailLoginActivity) getActivity())
@@ -371,7 +443,7 @@ public class FinishProfileFragment extends Fragment {
 
 					if (!facebookUser) {
 						userInputIsValidated = true;
-						System.out.println("Ikke facebook user");
+						// System.out.println("Ikke facebook user");
 						// Uploading picture
 						Thread t = new Thread(new Runnable() {
 							@Override
@@ -450,7 +522,7 @@ public class FinishProfileFragment extends Fragment {
 	 * HandleUsers.getLatLon(getActivity().getApplicationContext(),
 	 * finishProfileData.get(0), 0);
 	 * 
-	 * String url = "http://" + MainActivity.SERVER_URL + "/usrid.py?fname=" +
+	 * String url = MainActivity.SERVER_URL + "/usrid.py?fname=" +
 	 * registerData.get(0) + "&lat=" + latlon[0] + "&lon=" + latlon[1];
 	 * 
 	 * int id = 0; try { JSONArray jsonArray = new
@@ -550,50 +622,51 @@ public class FinishProfileFragment extends Fragment {
 		protected Boolean doInBackground(Void... params) {
 			// TODO Auto-generated method stub
 			try {
-				System.out.println("Getting institutions from server");
+				// System.out.println("Getting institutions from server");
 				JsonParser jp = new JsonParser();
 				JSONArray jsonInstArr, jsonDepartmentArr, jsonStudArr, jsonUserArr;
-				System.out.println("Got array");
+				// System.out.println("Got array");
 				// Cookie c = HandleLogin.getCookie(getActivity());
 				// if(c == null){return false;}
-				Cookie c = new BasicClientCookie("nothing", "");
-				jsonInstArr = jp.getJsonArray("http://"
-						+ MainActivity.SERVER_URL + "/institution.py", c);
+
+				HttpCookie c = new HttpCookie("nothing", "");
+				jsonInstArr = jp.getJsonArray(MainActivity.SERVER_URL
+						+ "/institution.py", c);
 				for (int i = 0; i < jsonInstArr.length(); i++) {
 					institutionObjects.add(new Institution(jsonInstArr
 							.getJSONObject(i)));
 				}
 
-				System.out.println("Getting departments from server");
-				jsonDepartmentArr = jp.getJsonArray("http://"
-						+ MainActivity.SERVER_URL + "/department.py",
+				// System.out.println("Getting departments from server");
+				jsonDepartmentArr = jp.getJsonArray(MainActivity.SERVER_URL
+						+ "/department.py",
 						HandleLogin.getCookie(getActivity()));
-				System.out.println("Got array");
+				// System.out.println("Got array");
 				for (int i = 0; i < jsonDepartmentArr.length(); i++) {
 					departmentObjects.add(new Department(jsonDepartmentArr
 							.getJSONObject(i)));
 				}
 
-				System.out.println("Getting studies from server");
-				jsonStudArr = jp.getJsonArray(
-						"http://" + MainActivity.SERVER_URL
-								+ "/study.py?q=getAllStudies",
+				// System.out.println("Getting studies from server");
+				jsonStudArr = jp.getJsonArray(MainActivity.SERVER_URL
+						+ "/study.py?q=getAllStudies",
 						HandleLogin.getCookie(getActivity()));
-				System.out.println("Got array");
+				// System.out.println("Got array");
 				for (int i = 0; i < jsonStudArr.length(); i++) {
 					studyObjects.add(new Study(jsonStudArr.getJSONObject(i)));
 				}
 
-				System.out.println("Getting users from server");
-				jsonUserArr = jp.getJsonArray("http://"
-						+ MainActivity.SERVER_URL + "/usr.py?q=usr",
-						HandleLogin.getCookie(getActivity()));
-				System.out.println("Got array");
-				JSONObject lastUserObj = jsonUserArr.getJSONObject(jsonUserArr
-						.length() - 1);
-				nextAvailableUserId = lastUserObj.getInt("user_id");
-				nextAvailableUserId++;
-				System.out.println("Next : " + nextAvailableUserId);
+				// //System.out.println("Getting users from server");
+				// jsonUserArr = jp.getJsonArray("http://"
+				// + MainActivity.SERVER_URL + "/usr.py?q=usr",
+				// HandleLogin.getCookie(getActivity()));
+				// //System.out.println("Got array");
+				// JSONObject lastUserObj =
+				// jsonUserArr.getJSONObject(jsonUserArr
+				// .length() - 1);
+				// nextAvailableUserId = lastUserObj.getInt("user_id");
+				// nextAvailableUserId++;
+				// //System.out.println("Next : " + nextAvailableUserId);
 				return true;
 			} catch (JSONException e) {
 				// TODO Auto-generated catch block

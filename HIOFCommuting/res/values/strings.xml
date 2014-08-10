@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <string name="app_name">HIOFCommuting</string>
+    <string name="app_name">Campuskjøring</string>
     <string name="action_settings">Innstillinger</string>
     <string name="hello_world">Hello world!</string>
     <!--  <string name="fbid">1397782713810671</string>-->

@@ -1,23 +1,21 @@
 package no.hiof.hiofommuting.database;
 
+import java.net.HttpCookie;
 import java.util.Random;
 
 import no.hiof.hiofcommuting.hiofcommuting.MainActivity;
 import no.hiof.hiofcommuting.objects.User;
 
-import org.apache.http.cookie.Cookie;
-import org.apache.http.impl.cookie.BasicClientCookie;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.content.Context;
 import android.content.SharedPreferences;
-import android.text.format.DateFormat;
 
 public class HandleLogin {
 
-	public static Cookie cookie;
+	public static HttpCookie cookie;
 
 	public static boolean checkUnAndPw(String email, String password,
 			Context context) {
@@ -28,7 +26,7 @@ public class HandleLogin {
 		JsonParser jp = new JsonParser();
 		jp.saveCookie = true;
 		JSONArray emailAndPw;
-		emailAndPw = jp.getJsonArray("http://" + MainActivity.SERVER_URL
+		emailAndPw = jp.getJsonArray(MainActivity.SERVER_URL
 				+ "/email.py?q=login&email=" + email + "&pass=" + password,
 				HandleLogin.getCookie(context));
 		if (emailAndPw == null) {
@@ -39,7 +37,7 @@ public class HandleLogin {
 		try {
 			JSONObject emailAndPwObj = (JSONObject) emailAndPw.get(0);
 			String uId = emailAndPwObj.getString("user_id");
-			System.out.println("userid: " + uId);
+			//System.out.println("userid: " + uId);
 			if (uId.equals("-100") || uId.equals("-200")) {
 				return false;
 			} else {
@@ -55,13 +53,13 @@ public class HandleLogin {
 		User userLoggedIn = null;
 		JsonParser jp = new JsonParser();
 		JSONArray emailUser;
-		emailUser = jp.getJsonArray("http://" + MainActivity.SERVER_URL
+		emailUser = jp.getJsonArray(MainActivity.SERVER_URL
 				+ "/usr.py?q=emailUser&email=" + email, getCookie(context));
 
 		try {
 			JSONObject obj = (JSONObject) emailUser.get(0);
 			int userId, studyId, startingYear;
-			String firstname, surname, institution, campus, department, study;
+			String firstname, surname, institution, campus, department, study, gcmId;
 			double lat, lon, distance;
 			boolean car;
 			userId = Integer.parseInt(obj.getString("user_id"));
@@ -73,14 +71,15 @@ public class HandleLogin {
 			campus = obj.getString("campus_name");
 			department = obj.getString("department_name");
 			study = obj.getString("name_of_study");
+			gcmId = obj.getString("gcm_id");
 			String point = obj.getString("latlon").replace("POINT(", "")
 					.replace(")", "");
 			String[] latlon = point.split(" ");
 			lat = Double.parseDouble(latlon[0]);
 			lon = Double.parseDouble(latlon[1]);
 			String photoUrl = firstname + lat + lon;
-			System.out.println("lat2 : " + lat);
-			System.out.println("lon2 : " + lon);
+			//System.out.println("lat2 : " + lat);
+			//System.out.println("lon2 : " + lon);
 			distance = 0.0;
 			String carString = obj.getString("car");
 			if (carString.equals("1")) {
@@ -91,7 +90,7 @@ public class HandleLogin {
 			String fbId = "";
 			userLoggedIn = new User(userId, studyId, firstname, surname, lat,
 					lon, distance, institution, campus, department, study,
-					startingYear, car, photoUrl, fbId);
+					startingYear, car, photoUrl, fbId, gcmId);
 			return userLoggedIn;
 		} catch (JSONException e) {
 			e.printStackTrace();
@@ -102,9 +101,9 @@ public class HandleLogin {
 	public static User getCurrentFacebookUserLoggedIn(JSONObject obj) {
 		User userLoggedIn;
 		try {
-			System.out.println("lager user");
+			//System.out.println("lager user");
 			int userId, studyId, startingYear;
-			String firstname, surname, institution, campus, department, study;
+			String firstname, surname, institution, campus, department, study, gcmId;
 			double lat, lon, distance;
 			boolean car;
 			userId = Integer.parseInt(obj.getString("user_id"));
@@ -116,14 +115,15 @@ public class HandleLogin {
 			campus = obj.getString("campus_name");
 			department = obj.getString("department_name");
 			study = obj.getString("name_of_study");
+			gcmId = obj.getString("gcm_id");
 			String point = obj.getString("latlon").replace("POINT(", "")
 					.replace(")", "");
 			String[] latlon = point.split(" ");
 			lat = Double.parseDouble(latlon[0]);
 			lon = Double.parseDouble(latlon[1]);
 			String photoUrl = firstname + lat + lon;
-			System.out.println("lat2 : " + lat);
-			System.out.println("lon2 : " + lon);
+			//System.out.println("lat2 : " + lat);
+			//System.out.println("lon2 : " + lon);
 			distance = 0.0;
 			String carString = obj.getString("car");
 			if (carString.equals("1")) {
@@ -134,7 +134,7 @@ public class HandleLogin {
 			String fbId = "";
 			userLoggedIn = new User(userId, studyId, firstname, surname, lat,
 					lon, distance, institution, campus, department, study,
-					startingYear, car, photoUrl, fbId);
+					startingYear, car, photoUrl, fbId, gcmId);
 			return userLoggedIn;
 		} catch (Exception e) {
 			return null;
@@ -157,7 +157,7 @@ public class HandleLogin {
 		return false;
 	}
 
-	public static Cookie getCookie(Context context) {
+	public static HttpCookie getCookie(Context context) {
 		SharedPreferences prefs = context.getSharedPreferences("hccook",
 				Context.MODE_PRIVATE);
 
@@ -165,7 +165,7 @@ public class HandleLogin {
 			return null;
 		}
 
-		BasicClientCookie c = new BasicClientCookie(
+		HttpCookie c = new HttpCookie(
 				prefs.getString("name", ""), prefs.getString("value", ""));
 		c.setDomain(prefs.getString("domain", ""));
 		c.setPath(prefs.getString("path", ""));
@@ -178,18 +178,17 @@ public class HandleLogin {
 				Context.MODE_PRIVATE);
 		SharedPreferences.Editor se = prefs.edit();
 		se.clear();
-		se.apply();
+		se.commit();
 	}
 
-	public static void saveCookie(Cookie c, Context context) {
+	public static void saveCookie(HttpCookie c, Context context) {
 		SharedPreferences prefs = context.getSharedPreferences("hccook",
 				Context.MODE_PRIVATE);
 		SharedPreferences.Editor editor = prefs.edit();
 		editor.putString("name", c.getName());
 		editor.putString("value", c.getValue());
 		editor.putString("domain", c.getDomain());
-		editor.putString("expiry", c.getExpiryDate() == null ? "" : c
-				.getExpiryDate().toString());
+		editor.putString("expiry", c.getMaxAge() == 0 ? "" : Long.toString(c.getMaxAge()));
 		editor.putString("path", c.getPath());
 		editor.putInt("version", c.getVersion());
 		editor.apply();

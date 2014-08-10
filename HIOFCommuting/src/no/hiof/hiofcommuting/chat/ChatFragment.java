@@ -100,7 +100,7 @@ public class ChatFragment extends Fragment{
 				// Set list adapter for the ListView
 				chatView.setAdapter(adapter);
 			}else{
-				System.out.println("har ikke chatta med denne brukeren f�r");
+				//System.out.println("har ikke chatta med denne brukeren f�r");
 			}
 			Dialog.dismiss();
 		}

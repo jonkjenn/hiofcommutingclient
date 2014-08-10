@@ -3,6 +3,10 @@ package no.hiof.hiofommuting.database;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
+import java.net.HttpCookie;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -19,7 +23,6 @@ import org.apache.http.HttpResponse;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
-import org.apache.http.cookie.Cookie;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -39,8 +42,7 @@ public class HandleUsers {
 
 	public static List<User> getAllUsers(Context context, User userLoggedIn,
 			Filter filter) {
-		String urlUser = "http://" + MainActivity.SERVER_URL
-				+ "/usr.py?q=allusrs";
+		String urlUser = MainActivity.SERVER_URL + "/usr.py?q=allusrs";
 		JSONArray arrayUser = new JsonParser().getJsonArray(urlUser,
 				HandleLogin.getCookie(context));
 		if (userList.isEmpty() || userList.size() == arrayUser.length()) {
@@ -79,7 +81,7 @@ public class HandleUsers {
 						userList.add(new User(user_id, study_id, firstname,
 								surname, lat, lon, distance, institution,
 								campus, department, study, startingYear, car,
-								photoUrl, fbId));
+								photoUrl, fbId, ""));
 					}
 
 				} catch (JSONException e) {
@@ -96,14 +98,14 @@ public class HandleUsers {
 				});
 			}
 		} else {
-			System.out.println("ArrayList already contain all users");
+			//System.out.println("ArrayList already contain all users");
 		}
 
 		if (filter == null) {
-			System.out.println("return userlist");
+			//System.out.println("return userlist");
 			return userList;
 		} else {
-			System.out.println("return FILTERED userlist");
+			//System.out.println("return FILTERED userlist");
 
 			return (filterList(userList, userLoggedIn, filter));
 		}
@@ -194,7 +196,7 @@ public class HandleUsers {
 		HttpGet httpGet = new HttpGet(
 				"http://maps.google.com/maps/api/geocode/json?address="
 						+ placesName + "+norway&ka&sensor=false");
-		System.out.print(httpGet.getURI().toString());
+		//System.out.print(httpGet.getURI().toString());
 		HttpClient client = new DefaultHttpClient();
 		HttpResponse response;
 		StringBuilder stringBuilder = new StringBuilder();
@@ -270,7 +272,7 @@ public class HandleUsers {
 
 		return (double) (dist * meterConversion) / 1000;
 	}
-
+	
 	public static void insertEmailUserToDb(final int studyId,
 			final String firstName, final String surName, final double lat,
 			final double lon, final double distance, final String institution,
@@ -302,23 +304,24 @@ public class HandleUsers {
 			public void run() {
 				HTTPClient.insertFacebookUser(studyId, firstName, surName, lat,
 						lon, distance, institution, campus, department, study,
-						startingYear, car, fbId, context ,session);
+						startingYear, car, fbId, context, session);
 			}
 		});
 
 		t.start();
 	}
-	
-	public static void deleteUser(Context context, int userId)
-	{
-		Cookie c = HandleLogin.getCookie(context);		
-		DefaultHttpClient client = new DefaultHttpClient();
-		client.getCookieStore().addCookie(c);
-		String delete = "http://" + MainActivity.SERVER_URL
-				+ "/delusr.py?uid=" + userId;
+
+	public static void deleteUser(Context context, int userId) {
+		HttpCookie c = HandleLogin.getCookie(context);
+		String delete = MainActivity.SERVER_URL + "/delusr.py?uid=" + userId;
+
 		try {
-			client.execute(new HttpGet(delete));
-		} catch (ClientProtocolException e) {
+			URL url = new URL(delete);
+			HttpURLConnection uc;
+			uc = HTTPClient.getHttpUrlConnection(url);
+			int status = uc.getResponseCode();
+			uc.disconnect();
+		} catch (MalformedURLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} catch (IOException e) {
@@ -326,7 +329,7 @@ public class HandleUsers {
 			e.printStackTrace();
 		}
 	}
-	
+
 	public static Bitmap getProfilePicture(final String urlExtension) {
 
 		Thread t = new Thread(new Runnable() {

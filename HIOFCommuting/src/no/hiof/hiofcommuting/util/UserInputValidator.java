@@ -42,11 +42,11 @@ public class UserInputValidator {
 
         Pattern pattern = Pattern.compile(expression, Pattern.CASE_INSENSITIVE);
         Matcher matcher = pattern.matcher(inputStr);
-        if (matcher.matches()) {
+        if (matcher.matches() && email.endsWith("@hiof.no")) {
             return true;
         }
         else{
-            Toast.makeText(fragment.getActivity().getApplicationContext(), "Ugyldig epost" , Toast.LENGTH_SHORT).show();
+            Toast.makeText(fragment.getActivity().getApplicationContext(), "Ugyldig epost, husk kun hiof.no adresser er gyldige." , Toast.LENGTH_SHORT).show();
             emailText.requestFocus();
             return false;
         }

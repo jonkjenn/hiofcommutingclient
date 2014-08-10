@@ -78,7 +78,7 @@ public class TabMapFragment extends Fragment implements
 		if (googleMap == null) {
 			googleMap = fragment.getMap();
 			initializeMap();
-			System.out.println("Done, tabmap resumed");
+			// System.out.println("Done, tabmap resumed");
 		}
 	}
 
@@ -90,15 +90,13 @@ public class TabMapFragment extends Fragment implements
 			@Override
 			public void run() {
 				if (fragment == null) {
-					System.out.println("fragment er null");
+					// System.out.println("fragment er null");
 				} else {
-					System.out.println("fragment er ikke null");
+					// System.out.println("fragment er ikke null");
 					googleMap = fragment.getMap();
 					if (googleMap == null) {
 						h.postDelayed(this, 300);
-					}
-					else
-					{
+					} else {
 						setupMap();
 					}
 				}
@@ -238,8 +236,8 @@ public class TabMapFragment extends Fragment implements
 					return User.userList;
 				}
 			} catch (NullPointerException e) {
-				System.out
-						.println("Returns null in doInBackground: TabMapFragment.java");
+				// System.out
+				// .println("Returns null in doInBackground: TabMapFragment.java");
 				return null;
 			}
 		}
