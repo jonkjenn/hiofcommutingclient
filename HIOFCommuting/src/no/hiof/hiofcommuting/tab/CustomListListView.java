@@ -52,7 +52,7 @@ public class CustomListListView extends ArrayAdapter<User>{
 
         final User currentUser = userObjects.get(position);
 
-        ImageHandler.setBitmapFromPath(profilePic, currentUser.getImagePath());
+//        ImageHandler.setBitmapFromPath(profilePic, currentUser.getImagePath());
 
 		nameTxt.setText(currentUser.getFirstName());
 		DecimalFormat df = new DecimalFormat("0.0");

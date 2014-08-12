@@ -142,8 +142,8 @@ public class TabMapFragment extends Fragment implements
 							.findViewById(R.id.textView_tabMap_department);
 
 					final User user = hashMap.get(arg0.getId());
-					ImageHandler.setBitmapFromPath(profilePic,
-							user.getImagePath());
+//					ImageHandler.setBitmapFromPath(profilePic,
+//							user.getImagePath());
 
 					nameTxt.setText(firstName);
 
@@ -292,21 +292,21 @@ public class TabMapFragment extends Fragment implements
 							userLoggedIn, filter);
 
 					// Saving images to cache, setting path to user objects
-					for (final User user : User.userList) {
-
-						Bitmap bitmap;
-
-						if (user.getFbId().equals("None"))
-							bitmap = HTTPClient.getProfilePicturesFromServer(
-									"email", user.getPhotoUrl(), false);
-						else
-							bitmap = HTTPClient.getProfilePicturesFromServer(
-									"facebook", user.getFbId(), true);
-
-						String imagePath = ImageHandler.saveBitmapToCache(
-								getActivity(), bitmap, user.getUserid());
-						user.setImagePath(imagePath);
-					}
+//					for (final User user : User.userList) {
+//
+//						Bitmap bitmap;
+//
+//						if (user.getFbId().equals("None"))
+//							bitmap = HTTPClient.getProfilePicturesFromServer(
+//									"email", user.getPhotoUrl(), false);
+//						else
+//							bitmap = HTTPClient.getProfilePicturesFromServer(
+//									"facebook", user.getFbId(), true);
+//
+//						String imagePath = ImageHandler.saveBitmapToCache(
+//								getActivity(), bitmap, user.getUserid());
+//						user.setImagePath(imagePath);
+//					}
 
 					if (Filter.isFilterSet) {
 						User.isUserListFiltered = true;

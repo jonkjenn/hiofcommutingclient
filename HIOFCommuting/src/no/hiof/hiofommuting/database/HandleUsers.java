@@ -81,7 +81,7 @@ public class HandleUsers {
 						userList.add(new User(user_id, study_id, firstname,
 								surname, lat, lon, distance, institution,
 								campus, department, study, startingYear, car,
-								photoUrl, fbId, ""));
+								photoUrl, fbId, "", 0));
 					}
 
 				} catch (JSONException e) {

@@ -42,7 +42,7 @@ public class UserInformationActivity extends Activity {
 		//Mottar valgt user-objekt fra forrige activity
 		selectedUser = (User)getIntent().getSerializableExtra("SELECTED_USER");
 
-        ImageHandler.setBitmapFromPath(profilePic, selectedUser.getImagePath());
+//        ImageHandler.setBitmapFromPath(profilePic, selectedUser.getImagePath());
 		
 		//Setter tittel på activity til navnet på user-objekt
 		setTitle(selectedUser.getFirstName());

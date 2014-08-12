@@ -91,18 +91,18 @@ public class TabListFragment extends Fragment {
                     User.userList = HandleUsers.getAllUsers(getActivity(), userLoggedIn, filter);
 
                     // Saving images to cache, setting path to user objects
-                    for (final User user : User.userList) {
-
-                        Bitmap bitmap;
-
-                        if (user.getFbId().equals("None"))
-                            bitmap = HTTPClient.getProfilePicturesFromServer("email", user.getPhotoUrl(), false);
-                        else
-                            bitmap = HTTPClient.getProfilePicturesFromServer("facebook", user.getFbId(), true);
-
-                        String imagePath = ImageHandler.saveBitmapToCache(getActivity(), bitmap, user.getUserid());
-                        user.setImagePath(imagePath);
-                    }
+//                    for (final User user : User.userList) {
+//
+//                        Bitmap bitmap;
+//
+//                        if (user.getFbId().equals("None"))
+//                            bitmap = HTTPClient.getProfilePicturesFromServer("email", user.getPhotoUrl(), false);
+//                        else
+//                            bitmap = HTTPClient.getProfilePicturesFromServer("facebook", user.getFbId(), true);
+//
+//                        String imagePath = ImageHandler.saveBitmapToCache(getActivity(), bitmap, user.getUserid());
+//                        user.setImagePath(imagePath);
+//                    }
 
                     if (Filter.isFilterSet) {
                         User.isUserListFiltered = true;

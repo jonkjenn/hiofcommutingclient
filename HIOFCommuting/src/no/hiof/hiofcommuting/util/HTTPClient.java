@@ -105,11 +105,10 @@ public class HTTPClient {
 			sent = true;
 		}
 	}
-	
-	public static boolean updateAddress(double lat, double lon)
-	{
+
+	public static boolean updateAddress(double lat, double lon) {
 		final String URL = MainActivity.SERVER_URL + "/update_address.py";
-		final List<NameValuePair> nvp = new ArrayList<NameValuePair>(2);		
+		final List<NameValuePair> nvp = new ArrayList<NameValuePair>(2);
 		nvp.add(new BasicNameValuePair("lat", Double.toString(lat)));
 		nvp.add(new BasicNameValuePair("lon", Double.toString(lon)));
 
@@ -278,12 +277,15 @@ public class HTTPClient {
 		return null;
 	}
 
-	public static void insertGcmId(final String gcmId, HttpCookie cookie) {
+	public static void insertGcmId(final String gcmId, final int gcmVersion,
+			HttpCookie cookie) {
 		final String URL = MainActivity.SERVER_URL + "/reggcm.py?";
 
 		final List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>(
 				1);
 
+		nameValuePairs.add(new BasicNameValuePair("gcmVersion", Integer
+				.toString(gcmVersion)));
 		nameValuePairs.add(new BasicNameValuePair("gcmId", gcmId));
 
 		if (post_data(URL, createPost(nameValuePairs), null) == 200) {
@@ -294,7 +296,7 @@ public class HTTPClient {
 	public static void addCookie(HttpCookie cookie) {
 
 		try {
-			if(CookieHandler.getDefault() == null){
+			if (CookieHandler.getDefault() == null) {
 				CookieHandler.setDefault(new CookieManager());
 			}
 			((CookieManager) CookieHandler.getDefault()).getCookieStore().add(
@@ -349,12 +351,12 @@ public class HTTPClient {
 
 		HttpURLConnection c = (HttpURLConnection) url.openConnection();
 		c.setRequestMethod("GET");
-		//c.setRequestProperty("Content-length", "0");
-        c.setRequestProperty("Connection", "close");
-//		c.setUseCaches(false);
-	//	c.setAllowUserInteraction(false);
-		//c.setConnectTimeout(5000);
-		//c.setReadTimeout(5000);
+		// c.setRequestProperty("Content-length", "0");
+		c.setRequestProperty("Connection", "close");
+		// c.setUseCaches(false);
+		// c.setAllowUserInteraction(false);
+		// c.setConnectTimeout(5000);
+		// c.setReadTimeout(5000);
 		c.connect();
 
 		return c;

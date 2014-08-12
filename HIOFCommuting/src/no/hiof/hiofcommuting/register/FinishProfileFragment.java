@@ -307,7 +307,7 @@ public class FinishProfileFragment extends Fragment {
 					super.onPostExecute(result);
 					if (result) {
 						createUserObj(fstudyId, firstName, surName, lat, lon,
-								distance, startingYear, car, photoUrl, "");
+								distance, startingYear, car, photoUrl, "", 0);
 						afterInsert(registerData.get(2), registerData.get(3));
 					} else {
 						Toast.makeText(getActivity(),
@@ -323,10 +323,10 @@ public class FinishProfileFragment extends Fragment {
 
 	public void createUserObj(int studyId, String firstName, String surName,
 			double lat, double lon, double distance, int startingYearInt,
-			boolean car, String photoUrl, String gcmId) {
+			boolean car, String photoUrl, String gcmId, int gcmVersion) {
 		u = new User(nextAvailableUserId, studyId, firstName, surName, lat,
 				lon, distance, institution, campus, department, study,
-				startingYearInt, car, photoUrl, fbId, gcmId);
+				startingYearInt, car, photoUrl, fbId, gcmId, gcmVersion);
 	}
 
 	public void addDataToStartingYearSpinner() {

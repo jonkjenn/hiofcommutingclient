@@ -23,6 +23,7 @@ public class User implements Serializable{
     public static List<User> userList;
     public static boolean isUserListFiltered;
     private String gcmId;
+    private int gcmVersion;
 
     // When creating ListView
     public User(String firstname, String department, String institution, double distance, String imagePath, String fbId){
@@ -36,7 +37,7 @@ public class User implements Serializable{
 
 	public User(int userid, int studyid, String firstname, String surname, double lat, double lon, double distance,
 			String institution, String campus, String department,
-			String study, int startingYear, boolean car, String photoUrl, String fbId, String gcmId) {
+			String study, int startingYear, boolean car, String photoUrl, String fbId, String gcmId, int gcmVersion) {
 		this.userId = userid;
 		this.studyId = studyid;
 		this.firstname = firstname;
@@ -54,6 +55,7 @@ public class User implements Serializable{
 		this.fbId = fbId;
         this.imagePath = "";
         this.gcmId = gcmId;
+        this.gcmVersion = gcmVersion;
 	}
 	
 	public User(int userid, String firstname, String surname)
@@ -145,5 +147,10 @@ public class User implements Serializable{
     public void setLatLon(double lat, double lon)
     {
     	this.lat = lat; this.lon = lon;
+    }
+    
+    public int getGcmVersion()
+    {
+    	return this.gcmVersion;
     }
 }

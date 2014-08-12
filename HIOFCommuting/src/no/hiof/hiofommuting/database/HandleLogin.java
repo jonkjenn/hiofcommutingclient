@@ -58,7 +58,7 @@ public class HandleLogin {
 
 		try {
 			JSONObject obj = (JSONObject) emailUser.get(0);
-			int userId, studyId, startingYear;
+			int userId, studyId, startingYear, gcmVersion;
 			String firstname, surname, institution, campus, department, study, gcmId;
 			double lat, lon, distance;
 			boolean car;
@@ -72,6 +72,7 @@ public class HandleLogin {
 			department = obj.getString("department_name");
 			study = obj.getString("name_of_study");
 			gcmId = obj.getString("gcm_id");
+			gcmVersion = Integer.parseInt(obj.getString("gcm_version"));
 			String point = obj.getString("latlon").replace("POINT(", "")
 					.replace(")", "");
 			String[] latlon = point.split(" ");
@@ -90,7 +91,7 @@ public class HandleLogin {
 			String fbId = "";
 			userLoggedIn = new User(userId, studyId, firstname, surname, lat,
 					lon, distance, institution, campus, department, study,
-					startingYear, car, photoUrl, fbId, gcmId);
+					startingYear, car, photoUrl, fbId, gcmId, gcmVersion);
 			return userLoggedIn;
 		} catch (JSONException e) {
 			e.printStackTrace();
@@ -102,7 +103,7 @@ public class HandleLogin {
 		User userLoggedIn;
 		try {
 			//System.out.println("lager user");
-			int userId, studyId, startingYear;
+			int userId, studyId, startingYear, gcmVersion;
 			String firstname, surname, institution, campus, department, study, gcmId;
 			double lat, lon, distance;
 			boolean car;
@@ -116,6 +117,7 @@ public class HandleLogin {
 			department = obj.getString("department_name");
 			study = obj.getString("name_of_study");
 			gcmId = obj.getString("gcm_id");
+			gcmVersion = Integer.parseInt(obj.getString("gcm_version"));
 			String point = obj.getString("latlon").replace("POINT(", "")
 					.replace(")", "");
 			String[] latlon = point.split(" ");
@@ -134,7 +136,7 @@ public class HandleLogin {
 			String fbId = "";
 			userLoggedIn = new User(userId, studyId, firstname, surname, lat,
 					lon, distance, institution, campus, department, study,
-					startingYear, car, photoUrl, fbId, gcmId);
+					startingYear, car, photoUrl, fbId, gcmId, gcmVersion);
 			return userLoggedIn;
 		} catch (Exception e) {
 			return null;

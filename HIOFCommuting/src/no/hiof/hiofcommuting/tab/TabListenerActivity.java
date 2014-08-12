@@ -6,6 +6,7 @@ import java.util.List;
 import no.hiof.hiofcommuting.R;
 import no.hiof.hiofcommuting.chat.ChatActivity;
 import no.hiof.hiofcommuting.hiofcommuting.ChatService;
+import no.hiof.hiofcommuting.hiofcommuting.GcmBroadcastReceiver;
 import no.hiof.hiofcommuting.hiofcommuting.MainActivity;
 import no.hiof.hiofcommuting.objects.Filter;
 import no.hiof.hiofcommuting.objects.User;
@@ -15,10 +16,14 @@ import no.hiof.hiofommuting.database.HandleUsers;
 import android.app.ActionBar;
 import android.app.ActionBar.Tab;
 import android.app.AlertDialog;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnClickListener;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager.NameNotFoundException;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -40,18 +45,26 @@ import com.google.android.gms.gcm.GoogleCloudMessaging;
 public class TabListenerActivity extends FragmentActivity implements
 		ActionBar.TabListener {
 
-	private User userLoggedIn;
-	private Filter filter;
+	public static User userLoggedIn;
+	public static Filter filter;
 
 	public static final String PROPERTY_REG_ID = "registration_id";
 	private final static int PLAY_SERVICES_RESOLUTION_REQUEST = 9000;
 
 	String SENDER_ID = "299457056241";
 
-	GoogleCloudMessaging gcm;
+	static GoogleCloudMessaging gcm;
 	SharedPreferences prefs;
 
 	private FilterUsersFragment filterUserFragment = null;
+
+	private BroadcastReceiver mBroadcastReceiver = new BroadcastReceiver() {
+
+		@Override
+		public void onReceive(Context context, Intent intent) {
+			TabListenerActivity.this.receiveBroadCast(intent);
+		}
+	};
 
 	Session session = null;
 
@@ -62,28 +75,39 @@ public class TabListenerActivity extends FragmentActivity implements
 		super.onCreate(savedInstanceState);
 
 		// Receive current user logged in
-		setUserLoggedIn((User) getIntent().getSerializableExtra("CURRENT_USER"));
-		// profilePic = (Bitmap)getIntent().getParcelableExtra("PROFILE_PIC");
+		if (getIntent().hasExtra("CURRENT_USER")) {
+			setUserLoggedIn((User) getIntent().getSerializableExtra(
+					"CURRENT_USER"));
+			// profilePic =
+			// (Bitmap)getIntent().getParcelableExtra("PROFILE_PIC");
+
+			/*
+			 * try { session = (Session) getIntent().getSerializableExtra(
+			 * "FACEBOOK_SESSION"); // System.out.println(session.getState());
+			 * // System.out.println("Logget in with Facebook"); } catch
+			 * (NullPointerException e) { //
+			 * System.out.println("Logget in with email"); }
+			 */
+
+			if (gcm == null) {
+				gcm_setup();
+			}
+
+			if (User.userList == null || User.userList.size() == 0) {
+				getUsersThread();
+			}
+
+			/*
+			 * int convId = getIntent().getExtras().getInt("conversationid"); if
+			 * (convId > 0) { onTabSelected(actionBar.getTabAt(2), null); }
+			 */
+		}
+
 		setContentView(R.layout.activity_tab_listener);
-
-/*		try {
-			session = (Session) getIntent().getSerializableExtra(
-					"FACEBOOK_SESSION");
-			// System.out.println(session.getState());
-			// System.out.println("Logget in with Facebook");
-		} catch (NullPointerException e) {
-			// System.out.println("Logget in with email");
-		}*/
-
 		String not = getIntent().getStringExtra("SERVICE");
-		// System.out.println("Service : " + not);
-		// System.out.println("Starter service");
 		Intent chatServiceIntent = new Intent(this, ChatService.class);
 		chatServiceIntent.putExtra("CURRENT_USER", userLoggedIn);
 		startService(chatServiceIntent);
-		// String notification =
-		// System.out .println("User logged in is " +
-		// getUserLoggedIn().getUserid());
 
 		if (savedInstanceState == null) {
 			getSupportFragmentManager().beginTransaction()
@@ -106,35 +130,24 @@ public class TabListenerActivity extends FragmentActivity implements
 		actionBar.addTab(actionBar.newTab().setText(R.string.tab_inbox)
 				.setTabListener(this));
 
-		gcm_setup();
-
-		getUsersThread();
-
-		if (getIntent().getExtras() != null
-				&& getIntent().getExtras().containsKey("sender_id")) {
-			Intent intent = new Intent(this, ChatActivity.class);
-			intent.putExtra("CURRENT_USER", userLoggedIn);
-			intent.putExtra(
-					"SELECTED_USER",
-					new User(Integer.parseInt(getIntent().getExtras()
-							.getString("sender_id")), getIntent().getExtras()
-							.getString("sender_firstname"), getIntent()
-							.getExtras().getString("sender_surname")));
-			startActivity(intent);
-		}
-
-		/*
-		 * int convId = getIntent().getExtras().getInt("conversationid"); if
-		 * (convId > 0) { onTabSelected(actionBar.getTabAt(2), null); }
-		 */
+		startChatFromIntent(getIntent());
 	}
 
 	private void gcm_setup() {
 		gcm = GoogleCloudMessaging.getInstance(this);
-		if (userLoggedIn.getGcmId().isEmpty()
-				|| userLoggedIn.getGcmId().equals("null")) {
-			registerInBackground();
+		try {
+			int regversion = getPackageManager().getPackageInfo(
+					getPackageName(), 0).versionCode;
+			if (userLoggedIn.getGcmId().isEmpty()
+					|| userLoggedIn.getGcmId().equals("null")
+					|| userLoggedIn.getGcmVersion() < regversion) {
+				registerInBackground();
+			}
+		} catch (NameNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
+
 	}
 
 	private void registerInBackground() {
@@ -148,8 +161,16 @@ public class TabListenerActivity extends FragmentActivity implements
 								.getInstance(TabListenerActivity.this);
 					}
 					String regid = gcm.register(SENDER_ID);
+					int regversion = 0;
+					try {
+						regversion = getPackageManager().getPackageInfo(
+								getPackageName(), 0).versionCode;
+					} catch (NameNotFoundException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
 
-					HTTPClient.insertGcmId(regid,
+					HTTPClient.insertGcmId(regid, regversion,
 							HandleLogin.getCookie(TabListenerActivity.this));
 
 					userLoggedIn.setGcmId(regid);
@@ -210,8 +231,7 @@ public class TabListenerActivity extends FragmentActivity implements
 		case R.id.action_settings:
 			return true;
 		case R.id.endreAdresse:
-			if(mapFragment != null)
-			{
+			if (mapFragment != null) {
 				mapFragment.endreAdresse();
 			}
 			return true;
@@ -385,7 +405,7 @@ public class TabListenerActivity extends FragmentActivity implements
 			return rootView;
 		}
 	}
-	
+
 	TabMapFragment mapFragment;
 
 	@Override
@@ -393,7 +413,7 @@ public class TabListenerActivity extends FragmentActivity implements
 		if (tab.getPosition() == 0) {
 			mapFragment = new TabMapFragment();
 			getSupportFragmentManager().beginTransaction()
-					.replace(R.id.fragment_tab_container,mapFragment)
+					.replace(R.id.fragment_tab_container, mapFragment)
 					.addToBackStack("Map").commit();
 			// System.out.println("Map");
 			setTitle("Kart");
@@ -463,5 +483,48 @@ public class TabListenerActivity extends FragmentActivity implements
 				});
 
 		ab.create().show();
+	}
+
+	@Override
+	protected void onResume() {
+		super.onResume();
+
+		 IntentFilter iff = new IntentFilter();
+		 iff.addAction("com.google.android.c2dm.intent.RECEIVE");
+		 this.registerReceiver(mBroadcastReceiver, iff);
+
+	}
+
+	@Override
+	protected void onPause() {
+		super.onPause();
+		 this.unregisterReceiver(mBroadcastReceiver);
+	}
+
+	public void receiveBroadCast(Intent intent) {
+
+		if (GcmBroadcastReceiver.checkGCMMessage(this, intent)) {
+
+			Intent i = new Intent(this,
+					no.hiof.hiofcommuting.tab.TabListenerActivity.class);
+			i.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
+
+			GcmBroadcastReceiver.generateNotification(this, intent, i);
+			mBroadcastReceiver.abortBroadcast();
+		}
+	}
+
+	private void startChatFromIntent(Intent intent) {
+		if (intent != null && intent.getExtras().containsKey("sender_id")) {
+			Intent i = new Intent(this, ChatActivity.class);
+			i.putExtra("CURRENT_USER", userLoggedIn);
+			i.putExtra(
+					"SELECTED_USER",
+					new User(Integer.parseInt(intent.getExtras().getString(
+							"sender_id")), intent.getExtras().getString(
+							"sender_firstname"), intent.getExtras().getString(
+							"sender_surname")));
+			startActivity(i);
+		}
 	}
 }

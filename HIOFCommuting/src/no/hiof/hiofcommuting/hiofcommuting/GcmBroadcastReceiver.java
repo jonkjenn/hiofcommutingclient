@@ -16,41 +16,51 @@ public class GcmBroadcastReceiver extends BroadcastReceiver {
 	@Override
 	public void onReceive(Context context, Intent intent) {
 
-		NotificationManager manager = (NotificationManager) context
-				.getSystemService(Context.NOTIFICATION_SERVICE);
+		if (checkGCMMessage(context, intent)) {
 
-		Bundle extras = intent.getExtras();
+			Intent i = new Intent(context,
+					no.hiof.hiofcommuting.hiofcommuting.MainActivity.class);
+
+			generateNotification(context, intent, i);
+		}
+
+		setResultCode(Activity.RESULT_OK);
+	}
+
+	public static boolean checkGCMMessage(Context context, Intent intent) {
 		GoogleCloudMessaging gcm = GoogleCloudMessaging.getInstance(context);
 
 		String messageType = gcm.getMessageType(intent);
 
-		if (GoogleCloudMessaging.MESSAGE_TYPE_MESSAGE.equals(messageType)) {
-			
-        Intent i = new Intent(context,
-							no.hiof.hiofcommuting.hiofcommuting.MainActivity.class);
-        
-        String sender_id = extras.getString("sender_id");
-        String sender_firstname = extras.getString("sender_firstname");
-        String sender_surname = extras.getString("sender_surname");
-        
-        i.putExtra("sender_id", sender_id);
-        i.putExtra("sender_firstname", sender_firstname);
-        i.putExtra("sender_surname", sender_surname);
+		return GoogleCloudMessaging.MESSAGE_TYPE_MESSAGE.equals(messageType) ? true
+				: false;
+	}
 
-        PendingIntent pi = PendingIntent.getActivity(context, 0, i, 0);
-			
-			NotificationCompat.Builder nb = new NotificationCompat.Builder(
-					context)
-					.setSmallIcon(
-							no.hiof.hiofcommuting.R.drawable.campuskjoring_72)
-					.setContentTitle(
-							"Melding fra " + sender_firstname + " " + sender_surname)
-					.setContentText(extras.getString("message"))
-					.setContentIntent(pi)
-					.setAutoCancel(true);
-			manager.notify(Integer.parseInt(sender_id),nb.build());
-		}
-		
-	setResultCode(Activity.RESULT_OK);
+	public static void generateNotification(Context context, Intent fromIntent,
+			Intent targetIntent) {
+		NotificationManager manager = (NotificationManager) context
+				.getSystemService(Context.NOTIFICATION_SERVICE);
+
+		Bundle extras = fromIntent.getExtras();
+
+		String sender_id = extras.getString("sender_id");
+		String sender_firstname = extras.getString("sender_firstname");
+		String sender_surname = extras.getString("sender_surname");
+
+		targetIntent.putExtra("sender_id", sender_id);
+		targetIntent.putExtra("sender_firstname", sender_firstname);
+		targetIntent.putExtra("sender_surname", sender_surname);
+
+		PendingIntent pi = PendingIntent.getActivity(context, 0, targetIntent,
+				0);
+
+		NotificationCompat.Builder nb = new NotificationCompat.Builder(context)
+				.setSmallIcon(no.hiof.hiofcommuting.R.drawable.campuskjoring_72)
+				.setContentTitle(
+						"Melding fra " + sender_firstname + " "
+								+ sender_surname)
+				.setContentText(extras.getString("message"))
+				.setContentIntent(pi).setAutoCancel(true);
+		manager.notify(Integer.parseInt(sender_id), nb.build());
 	}
 }

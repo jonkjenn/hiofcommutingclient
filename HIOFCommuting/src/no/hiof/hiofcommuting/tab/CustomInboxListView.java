@@ -43,7 +43,7 @@ public class CustomInboxListView extends ArrayAdapter<Inbox>{
         if(sender != null) {
 	        //System.out.println("name " + sender.getFirstName());
 	        
-	        ImageHandler.setBitmapFromPath(profilePic, sender.getImagePath());
+//	        ImageHandler.setBitmapFromPath(profilePic, sender.getImagePath());
 	
 			name.setText(objects.get(position).getSender().getFirstName());
 			message.setText(objects.get(position).getMessage());
