@@ -48,8 +48,8 @@ public class RegisterFragment extends Fragment implements OnClickListener {
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
 
-        cameraLogo = (ImageView) getView().findViewById(R.id.register_cameraLogo);
-        cameraLogo.setOnClickListener(this);
+//        cameraLogo = (ImageView) getView().findViewById(R.id.register_cameraLogo);
+//        cameraLogo.setOnClickListener(this);
 
         next = (Button) getView().findViewById(R.id.register_next);
         next.setOnClickListener(this);
@@ -63,10 +63,10 @@ public class RegisterFragment extends Fragment implements OnClickListener {
 
     public void onClick(View view) {
         switch (view.getId()) {
-            case R.id.register_cameraLogo:
-                Intent intent = new Intent(Intent.ACTION_PICK, android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
-                startActivityForResult(intent, LOAD_IMAGE_RESULTS);
-                break;
+//            case R.id.register_cameraLogo:
+//                Intent intent = new Intent(Intent.ACTION_PICK, android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+//                startActivityForResult(intent, LOAD_IMAGE_RESULTS);
+//                break;
             case R.id.register_next:
                 firstName = firstNameEditText.getText().toString().trim();
                 lastName = lastNameEditText.getText().toString().trim();
@@ -75,11 +75,11 @@ public class RegisterFragment extends Fragment implements OnClickListener {
                 repeatPassword = repeatPasswordEditText.getText().toString().trim();
                 
 				//DEBUG REMOVE FROM APPP!!!!!!!!!!!!!!11
-                firstName = "abc";
-                lastName = "abc";
-                email = "a@hiof.no";
-                password = "qwertyu";
-                repeatPassword = password;
+//                firstName = "abc";
+//                lastName = "abc";
+//                email = "a@hiof.no";
+//                password = "qwertyu";
+//                repeatPassword = password;
 				//DEBUG REMOVE FROM APPP!!!!!!!!!!!!!!11
 
                 UserInputValidator validator = new UserInputValidator();
@@ -88,8 +88,9 @@ public class RegisterFragment extends Fragment implements OnClickListener {
                         && validator.isLastNameValid(this, lastName, lastNameEditText)
                         && validator.isEmailValid(this, email, emailEditText)
                         && validator.isPasswordValid(this, password, passwordEditText)
-                        && validator.isPasswordMatch(this, password, repeatPassword, repeatPasswordEditText)
-                        && validator.isProfilePictureChanged(this, logoIsChanged, cameraLogo)) {
+                        && validator.isPasswordMatch(this, password, repeatPassword, repeatPasswordEditText))
+               //         && validator.isProfilePictureChanged(this, logoIsChanged, cameraLogo)) 
+                {
                     ((EmailLoginActivity) getActivity()).setRegistrationList(firstName, lastName, email, password, repeatPassword);
                 } else
                     return;

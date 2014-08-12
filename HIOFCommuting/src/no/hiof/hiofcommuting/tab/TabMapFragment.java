@@ -11,7 +11,10 @@ import no.hiof.hiofcommuting.objects.User;
 import no.hiof.hiofcommuting.util.HTTPClient;
 import no.hiof.hiofcommuting.util.ImageHandler;
 import no.hiof.hiofommuting.database.HandleUsers;
+import android.app.AlertDialog;
 import android.app.ProgressDialog;
+import android.content.DialogInterface;
+import android.content.DialogInterface.OnClickListener;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.os.AsyncTask;
@@ -22,6 +25,7 @@ import android.support.v4.app.FragmentManager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -46,6 +50,7 @@ public class TabMapFragment extends Fragment implements
 	private LayoutInflater inflater;
 	private User userLoggedIn;
 	private Filter filter;
+	Marker userLoggedInMarker;
 
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -152,15 +157,7 @@ public class TabMapFragment extends Fragment implements
 			}
 		});
 
-		LatLng user = new LatLng(userLoggedIn.getLat(), userLoggedIn.getLon());
-		googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(user, 11));
-		Marker userLoggedInMarker = googleMap.addMarker(new MarkerOptions()
-				.title(userLoggedIn.getFirstName())
-				.snippet("Her bor du!")
-				.position(user)
-				.icon(BitmapDescriptorFactory
-						.defaultMarker(BitmapDescriptorFactory.HUE_AZURE)));
-		hashMap.put(userLoggedInMarker.getId(), userLoggedIn);
+		positionUser();
 
 		// Fill map with users
 		new GetUsers().execute();
@@ -170,6 +167,91 @@ public class TabMapFragment extends Fragment implements
 			Toast.makeText(getActivity().getApplicationContext(),
 					"Sorry! unable to create maps", Toast.LENGTH_SHORT).show();
 		}
+	}
+
+	private void setNewUserPositionFromDialog(final AlertDialog dialog) {
+		final String address = ((EditText) dialog.findViewById(R.id.address))
+				.getText().toString();
+		final String postalcode = ((EditText) dialog
+				.findViewById(R.id.postalcode)).getText().toString();
+
+		new AsyncTask<Void, Void, double[]>() {
+
+			@Override
+			protected double[] doInBackground(Void... params) {
+
+				return HandleUsers.getLatLon(getActivity(), address,
+						Integer.parseInt(postalcode));
+			}
+
+			protected void onPostExecute(double[] result) {
+				userLoggedIn.setLatLon(result[0], result[1]);
+				positionUser();
+
+				new AsyncTask<Void, Void, Boolean>() {
+
+					@Override
+					protected Boolean doInBackground(Void... params) {
+						return HTTPClient.updateAddress(userLoggedIn.getLat(),
+								userLoggedIn.getLon());
+					}
+
+					@Override
+					protected void onPostExecute(Boolean result) {
+						super.onPostExecute(result);
+						if (result) {
+							positionUser();
+							dialog.dismiss();
+						} else {
+							Toast.makeText(getActivity(),
+									"Server feil, vennligst prøv igjen.",
+									Toast.LENGTH_SHORT).show();
+						}
+					}
+
+				}.execute();
+			};
+
+		}.execute();
+
+	}
+
+	public void endreAdresse() {
+		AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+
+		LayoutInflater inflater = getActivity().getLayoutInflater();
+
+		builder.setView(inflater.inflate(R.layout.dialog_address, null))
+				.setNegativeButton("Lukk", new OnClickListener() {
+
+					@Override
+					public void onClick(DialogInterface dialog, int which) {
+						dialog.dismiss();
+					}
+				}).setPositiveButton("Lagre", new OnClickListener() {
+
+					@Override
+					public void onClick(final DialogInterface dialog, int which) {
+						setNewUserPositionFromDialog((AlertDialog) dialog);
+
+					};
+				}).create().show();
+	}
+
+	private void positionUser() {
+		if (userLoggedInMarker != null) {
+			hashMap.remove(userLoggedInMarker.getId());
+			userLoggedInMarker.remove();
+		}
+		LatLng user = new LatLng(userLoggedIn.getLat(), userLoggedIn.getLon());
+		googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(user, 11));
+		userLoggedInMarker = googleMap.addMarker(new MarkerOptions()
+				.title(userLoggedIn.getFirstName())
+				.snippet("Her bor du!")
+				.position(user)
+				.icon(BitmapDescriptorFactory
+						.defaultMarker(BitmapDescriptorFactory.HUE_AZURE)));
+		hashMap.put(userLoggedInMarker.getId(), userLoggedIn);
 	}
 
 	@Override

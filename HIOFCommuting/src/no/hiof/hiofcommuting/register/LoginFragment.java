@@ -110,7 +110,7 @@ public class LoginFragment extends Fragment {
 
 		@Override
 		protected Boolean doInBackground(String[]... params) {
-			//System.out.println("Validating");
+			// System.out.println("Validating");
 			String[] userInput = params[0];
 			String email = userInput[0];
 			String password = userInput[1];
@@ -141,6 +141,16 @@ public class LoginFragment extends Fragment {
 				Intent intent = new Intent(getActivity(),
 						no.hiof.hiofcommuting.tab.TabListenerActivity.class);
 				intent.putExtra("CURRENT_USER", userLoggedIn);
+
+                Bundle e = getActivity().getIntent().getExtras();
+				if (e != null && e.containsKey("sender_id")) {
+					intent.putExtra("sender_id", e.getString("sender_id"));
+					intent.putExtra("sender_firstname",
+							e.getString("sender_firstname"));
+					intent.putExtra("sender_surname",
+							e.getString("sender_surname"));
+				}
+
 				startActivity(intent);
 				getActivity().finish();
 			} else {

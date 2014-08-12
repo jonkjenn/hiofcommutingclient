@@ -26,7 +26,6 @@ import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentManager.BackStackEntry;
 import android.support.v4.app.FragmentTransaction;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -67,14 +66,14 @@ public class TabListenerActivity extends FragmentActivity implements
 		// profilePic = (Bitmap)getIntent().getParcelableExtra("PROFILE_PIC");
 		setContentView(R.layout.activity_tab_listener);
 
-		try {
+/*		try {
 			session = (Session) getIntent().getSerializableExtra(
 					"FACEBOOK_SESSION");
 			// System.out.println(session.getState());
 			// System.out.println("Logget in with Facebook");
 		} catch (NullPointerException e) {
 			// System.out.println("Logget in with email");
-		}
+		}*/
 
 		String not = getIntent().getStringExtra("SERVICE");
 		// System.out.println("Service : " + not);
@@ -209,6 +208,12 @@ public class TabListenerActivity extends FragmentActivity implements
 		// as you specify a parent activity in AndroidManifest.xml.
 		switch (item.getItemId()) {
 		case R.id.action_settings:
+			return true;
+		case R.id.endreAdresse:
+			if(mapFragment != null)
+			{
+				mapFragment.endreAdresse();
+			}
 			return true;
 		case R.id.newActivity:
 			// System.out.println("Logging out");
@@ -380,18 +385,21 @@ public class TabListenerActivity extends FragmentActivity implements
 			return rootView;
 		}
 	}
+	
+	TabMapFragment mapFragment;
 
 	@Override
 	public void onTabSelected(Tab tab, android.app.FragmentTransaction ft) {
 		if (tab.getPosition() == 0) {
-			Fragment tm = new TabMapFragment();
+			mapFragment = new TabMapFragment();
 			getSupportFragmentManager().beginTransaction()
-					.replace(R.id.fragment_tab_container, tm)
+					.replace(R.id.fragment_tab_container,mapFragment)
 					.addToBackStack("Map").commit();
 			// System.out.println("Map");
 			setTitle("Kart");
 		}
 		if (tab.getPosition() == 1) {
+			mapFragment = null;
 			Fragment tl = new TabListFragment();
 			getSupportFragmentManager().beginTransaction()
 					.replace(R.id.fragment_tab_container, tl)
@@ -400,6 +408,7 @@ public class TabListenerActivity extends FragmentActivity implements
 			setTitle("Liste");
 		}
 		if (tab.getPosition() == 2) {
+			mapFragment = null;
 			Fragment ti = new TabInboxFragment();
 			getSupportFragmentManager().beginTransaction()
 					.replace(R.id.fragment_tab_container, ti)

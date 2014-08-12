@@ -27,7 +27,7 @@
     <string name="resetpassword">Tilbakestill passord</string>
     <string name="firstname">Fornavn</string>
     <string name="lastname">Etternavn</string>
-    <string name="email">Epost</string>
+    <string name="email">Epost (@hiof.no)</string>
     <string name="choosepassword">Velg et passord</string>
     <string name="repeatpassword">Gjenta passord</string>
     <string name="choosepicture">Velg profilbilde</string>

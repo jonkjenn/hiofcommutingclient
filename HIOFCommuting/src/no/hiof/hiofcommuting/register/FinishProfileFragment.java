@@ -95,8 +95,9 @@ public class FinishProfileFragment extends Fragment {
 		studySpinner = (Spinner) getView().findViewById(R.id.studySpinner);
 		startingyearSpinner = (Spinner) getView().findViewById(
 				R.id.startingyearSpinner);
-		choosenPic = (ImageView) getView()
-				.findViewById(R.id.choosenPictureView);
+
+//		choosenPic = (ImageView) getView()
+//				.findViewById(R.id.choosenPictureView);
 		readConditionsToggleButton = (ToggleButton) getView().findViewById(
 				R.id.readConditionsToggleButton);
 		finishButton = (Button) getView().findViewById(R.id.finishbtn);
@@ -404,12 +405,12 @@ public class FinishProfileFragment extends Fragment {
 				String activity = getActivity().toString();
 
 				// DEBUG REMOVE FROM APPP!!!!!!!!!!!!!!11
-				address = "nystredet 8";
-				postalCode = "1772";
-				institution = "1";
-				department = "2";
-				study = "Bachelorstudium i ingeniørfag - data";
-				startingYear = "2014";
+//				address = "nystredet 8";
+//				postalCode = "1772";
+//				institution = "1";
+//				department = "2";
+//				study = "Bachelorstudium i ingeniørfag - data";
+//				startingYear = "2014";
 				// DEBUG REMOVE FROM APPP!!!!!!!!!!!!!!11
 
 				// if (activity
@@ -445,29 +446,29 @@ public class FinishProfileFragment extends Fragment {
 						userInputIsValidated = true;
 						// System.out.println("Ikke facebook user");
 						// Uploading picture
-						Thread t = new Thread(new Runnable() {
-							@Override
-							public void run() {
-								FileUploader
-										.upload(saveScaledImage(RegisterFragment
-												.getBitmap()));
-
-								if (FileUploader.serverResponseCode != 200) {
-									getActivity().runOnUiThread(new Runnable() {
-										@Override
-										public void run() {
-											Toast.makeText(getActivity(),
-													"Noe gikk galt",
-													Toast.LENGTH_SHORT);
-										}
-									});
-									Intent restart = new Intent(getActivity(),
-											MainActivity.class);
-									startActivity(restart);
-								}
-							}
-						});
-						t.start();
+//						Thread t = new Thread(new Runnable() {
+//							@Override
+//							public void run() {
+//								FileUploader
+//										.upload(saveScaledImage(RegisterFragment
+//												.getBitmap()));
+//
+//								if (FileUploader.serverResponseCode != 200) {
+//									getActivity().runOnUiThread(new Runnable() {
+//										@Override
+//										public void run() {
+//											Toast.makeText(getActivity(),
+//													"Noe gikk galt",
+//													Toast.LENGTH_SHORT);
+//										}
+//									});
+//									Intent restart = new Intent(getActivity(),
+//											MainActivity.class);
+//									startActivity(restart);
+//								}
+//							}
+//						});
+//						t.start();
 					}
 				}
 
@@ -591,7 +592,7 @@ public class FinishProfileFragment extends Fragment {
 								parentView.getContext(),
 								android.R.layout.simple_spinner_item,
 								currentList);
-						adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+						adapter.setDropDownViewResource(R.layout.multiline_spinner_dropdown_item);
 
 						for (int i = 0; i < departmentObjects.size(); i++) {
 							if (departmentObjects.get(i).getDepartmentName() == campus) {

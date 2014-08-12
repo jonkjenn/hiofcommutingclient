@@ -121,6 +121,7 @@
                 android:id="@+id/studySpinner"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
+                android:spinnerMode="dialog"
                 android:layout_weight="1" />
         </LinearLayout>
 

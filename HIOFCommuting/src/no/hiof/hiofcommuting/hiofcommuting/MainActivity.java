@@ -194,6 +194,11 @@ public class MainActivity extends FragmentActivity {
 		// // AUTHENTICATE USER IN OUR DATABASE
 		// makeMeRequest(session);
 		Intent intent = new Intent(this, EmailLoginActivity.class);
+		if (sender_id != null) {
+			intent.putExtra("sender_id", sender_id);
+			intent.putExtra("sender_firstname", sender_firstname);
+			intent.putExtra("sender_surname", sender_surname);
+		}
 		startActivity(intent);
 	}
 
@@ -236,14 +241,14 @@ public class MainActivity extends FragmentActivity {
 		protected void onPostExecute(JSONObject obj) {
 			try {
 				if (obj.getString("user_id").equals("-100")) {
-					//System.out.println("User er ikke registrert i systemet fra før");
+					// System.out.println("User er ikke registrert i systemet fra før");
 					Util.showFragment(FINISH, fm, fragments, "Fullfør profil",
 							weakActivity);
 				} else {
-					//System.out.println("User ER registrert i systemet fra før");
+					// System.out.println("User ER registrert i systemet fra før");
 					User userLoggedIn = HandleLogin
 							.getCurrentFacebookUserLoggedIn(obj);
-					//System.out.println(userLoggedIn + " er null");
+					// System.out.println(userLoggedIn + " er null");
 					// Session session = Session.getActiveSession();
 					Intent intent = new Intent(MainActivity.this,
 							no.hiof.hiofcommuting.tab.TabListenerActivity.class);

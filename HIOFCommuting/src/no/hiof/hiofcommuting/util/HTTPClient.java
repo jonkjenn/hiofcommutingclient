@@ -105,6 +105,20 @@ public class HTTPClient {
 			sent = true;
 		}
 	}
+	
+	public static boolean updateAddress(double lat, double lon)
+	{
+		final String URL = MainActivity.SERVER_URL + "/update_address.py";
+		final List<NameValuePair> nvp = new ArrayList<NameValuePair>(2);		
+		nvp.add(new BasicNameValuePair("lat", Double.toString(lat)));
+		nvp.add(new BasicNameValuePair("lon", Double.toString(lon)));
+
+		if (post_data(URL, createPost(nvp), null) == 200) {
+			return true;
+		} else {
+			return false;
+		}
+	}
 
 	public static boolean insertEmailUser(final int studyId,
 			final String firstName, final String surName, final double lat,
@@ -280,6 +294,9 @@ public class HTTPClient {
 	public static void addCookie(HttpCookie cookie) {
 
 		try {
+			if(CookieHandler.getDefault() == null){
+				CookieHandler.setDefault(new CookieManager());
+			}
 			((CookieManager) CookieHandler.getDefault()).getCookieStore().add(
 					new URI(MainActivity.SERVER_URL), cookie);
 		} catch (URISyntaxException e) {
@@ -332,11 +349,12 @@ public class HTTPClient {
 
 		HttpURLConnection c = (HttpURLConnection) url.openConnection();
 		c.setRequestMethod("GET");
-		c.setRequestProperty("Content-length", "0");
-		c.setUseCaches(false);
-		c.setAllowUserInteraction(false);
-		c.setConnectTimeout(5000);
-		c.setReadTimeout(5000);
+		//c.setRequestProperty("Content-length", "0");
+        c.setRequestProperty("Connection", "close");
+//		c.setUseCaches(false);
+	//	c.setAllowUserInteraction(false);
+		//c.setConnectTimeout(5000);
+		//c.setReadTimeout(5000);
 		c.connect();
 
 		return c;

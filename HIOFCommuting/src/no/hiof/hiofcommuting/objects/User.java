@@ -141,4 +141,9 @@ public class User implements Serializable{
     {
     	this.gcmId = gcmId;
     }
+    
+    public void setLatLon(double lat, double lon)
+    {
+    	this.lat = lat; this.lon = lon;
+    }
 }
