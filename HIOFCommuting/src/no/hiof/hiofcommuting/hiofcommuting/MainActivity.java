@@ -3,7 +3,6 @@ package no.hiof.hiofcommuting.hiofcommuting;
 import java.lang.ref.WeakReference;
 import java.net.CookieHandler;
 import java.net.CookieManager;
-import java.net.HttpCookie;
 
 import no.hiof.hiofcommuting.R;
 import no.hiof.hiofcommuting.objects.User;
@@ -19,6 +18,7 @@ import org.json.JSONObject;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -28,6 +28,9 @@ import android.support.v4.app.FragmentTransaction;
 import android.view.MenuItem;
 import android.view.View;
 
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.GooglePlayServicesUtil;
+
 /*import com.facebook.Request;
  import com.facebook.Response;
  import com.facebook.Session;
@@ -36,6 +39,7 @@ import android.view.View;
  import com.facebook.model.GraphUser;*/
 
 public class MainActivity extends FragmentActivity {
+	
 
 	private static final int SPLASH = 0;
 	private static final int FINISH = 1;
@@ -55,6 +59,7 @@ public class MainActivity extends FragmentActivity {
 	private String sender_firstname = null;
 	private String sender_surname = null;
 
+	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -115,6 +120,10 @@ public class MainActivity extends FragmentActivity {
 	@Override
 	public void onActivityResult(int requestCode, int resultCode, Intent data) {
 		super.onActivityResult(requestCode, resultCode, data);
+		if(requestCode == 9999)
+		{
+			startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("http://play.google.com/store/apps/details?id=com.google.android.gms")));
+		}
 		// uiHelper.onActivityResult(requestCode, resultCode, data);
 	}
 
@@ -193,6 +202,14 @@ public class MainActivity extends FragmentActivity {
 		// // if the session is already open,
 		// // AUTHENTICATE USER IN OUR DATABASE
 		// makeMeRequest(session);
+
+		int result = GooglePlayServicesUtil.isGooglePlayServicesAvailable(this);
+		if(result  != ConnectionResult.SUCCESS)
+		{
+			GooglePlayServicesUtil.getErrorDialog(result, this, 9999).show();
+			return;
+		}
+
 		Intent intent = new Intent(this, EmailLoginActivity.class);
 		if (sender_id != null) {
 			intent.putExtra("sender_id", sender_id);
@@ -267,5 +284,8 @@ public class MainActivity extends FragmentActivity {
 				e.printStackTrace();
 			}
 		}
+		
+		
 	}
+	
 }

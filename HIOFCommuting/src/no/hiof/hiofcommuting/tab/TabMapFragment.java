@@ -16,7 +16,6 @@ import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnClickListener;
 import android.content.Intent;
-import android.graphics.Bitmap;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
@@ -94,12 +93,12 @@ public class TabMapFragment extends Fragment implements
 
 			@Override
 			public void run() {
-				if (fragment == null) {
+				if (TabMapFragment.this.fragment == null) {
 					// System.out.println("fragment er null");
 				} else {
 					// System.out.println("fragment er ikke null");
-					googleMap = fragment.getMap();
-					if (googleMap == null) {
+					if (TabMapFragment.this.googleMap == null) {
+						googleMap = fragment.getMap();
 						h.postDelayed(this, 300);
 					} else {
 						setupMap();
@@ -108,7 +107,7 @@ public class TabMapFragment extends Fragment implements
 			}
 		});
 	};
-
+	
 	public void setupMap() {
 		googleMap.setOnInfoWindowClickListener(this);
 		googleMap.setInfoWindowAdapter(new InfoWindowAdapter() {
@@ -142,8 +141,8 @@ public class TabMapFragment extends Fragment implements
 							.findViewById(R.id.textView_tabMap_department);
 
 					final User user = hashMap.get(arg0.getId());
-//					ImageHandler.setBitmapFromPath(profilePic,
-//							user.getImagePath());
+					// ImageHandler.setBitmapFromPath(profilePic,
+					// user.getImagePath());
 
 					nameTxt.setText(firstName);
 
@@ -292,21 +291,21 @@ public class TabMapFragment extends Fragment implements
 							userLoggedIn, filter);
 
 					// Saving images to cache, setting path to user objects
-//					for (final User user : User.userList) {
-//
-//						Bitmap bitmap;
-//
-//						if (user.getFbId().equals("None"))
-//							bitmap = HTTPClient.getProfilePicturesFromServer(
-//									"email", user.getPhotoUrl(), false);
-//						else
-//							bitmap = HTTPClient.getProfilePicturesFromServer(
-//									"facebook", user.getFbId(), true);
-//
-//						String imagePath = ImageHandler.saveBitmapToCache(
-//								getActivity(), bitmap, user.getUserid());
-//						user.setImagePath(imagePath);
-//					}
+					// for (final User user : User.userList) {
+					//
+					// Bitmap bitmap;
+					//
+					// if (user.getFbId().equals("None"))
+					// bitmap = HTTPClient.getProfilePicturesFromServer(
+					// "email", user.getPhotoUrl(), false);
+					// else
+					// bitmap = HTTPClient.getProfilePicturesFromServer(
+					// "facebook", user.getFbId(), true);
+					//
+					// String imagePath = ImageHandler.saveBitmapToCache(
+					// getActivity(), bitmap, user.getUserid());
+					// user.setImagePath(imagePath);
+					// }
 
 					if (Filter.isFilterSet) {
 						User.isUserListFiltered = true;
