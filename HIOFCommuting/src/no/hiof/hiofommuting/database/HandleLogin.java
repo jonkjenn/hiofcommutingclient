@@ -1,6 +1,8 @@
 package no.hiof.hiofommuting.database;
 
+import java.io.UnsupportedEncodingException;
 import java.net.HttpCookie;
+import java.net.URLEncoder;
 import java.util.Random;
 
 import no.hiof.hiofcommuting.hiofcommuting.MainActivity;
@@ -26,18 +28,31 @@ public class HandleLogin {
 		JsonParser jp = new JsonParser();
 		jp.saveCookie = true;
 		JSONArray emailAndPw;
+
+		String eemail = "";
+		String epass = "";
+		try {
+			eemail = URLEncoder.encode(email, "utf-8");
+			epass = URLEncoder.encode(password, "utf-8");
+		} catch (UnsupportedEncodingException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+
 		emailAndPw = jp.getJsonArray(MainActivity.SERVER_URL
-				+ "/email.py?q=login&email=" + email + "&pass=" + password,
+				+ "/email.py?login&email=" + eemail + "&pass=" + epass,
 				HandleLogin.getCookie(context));
+
 		if (emailAndPw == null) {
 			return false;
 		}
+
 		cookie = jp.cookie;
 
 		try {
 			JSONObject emailAndPwObj = (JSONObject) emailAndPw.get(0);
 			String uId = emailAndPwObj.getString("user_id");
-			//System.out.println("userid: " + uId);
+			// System.out.println("userid: " + uId);
 			if (uId.equals("-100") || uId.equals("-200")) {
 				return false;
 			} else {
@@ -79,8 +94,8 @@ public class HandleLogin {
 			lat = Double.parseDouble(latlon[0]);
 			lon = Double.parseDouble(latlon[1]);
 			String photoUrl = firstname + lat + lon;
-			//System.out.println("lat2 : " + lat);
-			//System.out.println("lon2 : " + lon);
+			// System.out.println("lat2 : " + lat);
+			// System.out.println("lon2 : " + lon);
 			distance = 0.0;
 			String carString = obj.getString("car");
 			if (carString.equals("1")) {
@@ -102,7 +117,7 @@ public class HandleLogin {
 	public static User getCurrentFacebookUserLoggedIn(JSONObject obj) {
 		User userLoggedIn;
 		try {
-			//System.out.println("lager user");
+			// System.out.println("lager user");
 			int userId, studyId, startingYear, gcmVersion;
 			String firstname, surname, institution, campus, department, study, gcmId;
 			double lat, lon, distance;
@@ -124,8 +139,8 @@ public class HandleLogin {
 			lat = Double.parseDouble(latlon[0]);
 			lon = Double.parseDouble(latlon[1]);
 			String photoUrl = firstname + lat + lon;
-			//System.out.println("lat2 : " + lat);
-			//System.out.println("lon2 : " + lon);
+			// System.out.println("lat2 : " + lat);
+			// System.out.println("lon2 : " + lon);
 			distance = 0.0;
 			String carString = obj.getString("car");
 			if (carString.equals("1")) {
@@ -167,8 +182,8 @@ public class HandleLogin {
 			return null;
 		}
 
-		HttpCookie c = new HttpCookie(
-				prefs.getString("name", ""), prefs.getString("value", ""));
+		HttpCookie c = new HttpCookie(prefs.getString("name", ""),
+				prefs.getString("value", ""));
 		c.setDomain(prefs.getString("domain", ""));
 		c.setPath(prefs.getString("path", ""));
 		c.setVersion(prefs.getInt("version", 0));
@@ -190,7 +205,8 @@ public class HandleLogin {
 		editor.putString("name", c.getName());
 		editor.putString("value", c.getValue());
 		editor.putString("domain", c.getDomain());
-		editor.putString("expiry", c.getMaxAge() == 0 ? "" : Long.toString(c.getMaxAge()));
+		editor.putString("expiry",
+				c.getMaxAge() == 0 ? "" : Long.toString(c.getMaxAge()));
 		editor.putString("path", c.getPath());
 		editor.putInt("version", c.getVersion());
 		editor.apply();

@@ -71,6 +71,10 @@ public class RegisterFragment extends Fragment implements OnClickListener {
                 firstName = firstNameEditText.getText().toString().trim();
                 lastName = lastNameEditText.getText().toString().trim();
                 email = emailEditText.getText().toString().trim();
+                if(!email.contains("@"))
+                {
+                	email = email + "@hiof.no";
+                }
                 password = passwordEditText.getText().toString().trim();
                 repeatPassword = repeatPasswordEditText.getText().toString().trim();
                 

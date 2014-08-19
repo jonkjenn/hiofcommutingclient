@@ -41,6 +41,11 @@ public class LoginFragment extends Fragment {
 				// Henter brukerinput
 				String email = ((EditText) getView().findViewById(
 						R.id.login_editText_email)).getText().toString();
+				if(!email.contains("@"))
+				{
+					email = email + "@hiof.no";
+				}
+
 				String password = ((EditText) getView().findViewById(
 						R.id.login_editText_passord)).getText().toString();
 				validateUserInput(email, password);

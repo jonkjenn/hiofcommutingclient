@@ -4,6 +4,7 @@ import no.hiof.hiofcommuting.R;
 import no.hiof.hiofcommuting.hiofcommuting.GcmBroadcastReceiver;
 import no.hiof.hiofcommuting.objects.User;
 import no.hiof.hiofcommuting.tab.TabListenerActivity;
+import no.hiof.hiofommuting.database.HandleUsers;
 import android.app.Fragment;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -141,6 +142,15 @@ public class ChatActivity extends FragmentActivity {
 						.getString("sender_id")), intent.getExtras().getString(
 						"sender_firstname"), intent.getExtras().getString(
 						"sender_surname")));
+				
+				boolean found = false;
+				for (int ix = 0; ix < User.userList.size(); ix++) {
+					if (User.userList.get(ix).getUserid() == userToChatWith.getUserid()) {
+						found = true;
+					}
+				}
+				
+				if(!found){HandleUsers.getAllUsers(this, userLoggedIn, null, true);}
 
 				FragmentManager fm = getSupportFragmentManager();
 				FragmentTransaction transaction = fm.beginTransaction();

@@ -17,7 +17,7 @@ public class UserInputValidator {
     public UserInputValidator(){}
 
     public boolean isFirstNameValid(RegisterFragment fragment, String firstname, EditText fnText){
-        if (firstname.length() > 0 && firstname.matches("[a-zA-Z]+"))
+        if (firstname.length() > 0 && firstname.matches("[a-zA-ZæøåÆØÅ]+"))
             return true;
         else {
             Toast.makeText(fragment.getActivity().getApplicationContext(), "Tast inn fornavn", Toast.LENGTH_SHORT).show();
@@ -27,7 +27,7 @@ public class UserInputValidator {
     }
 
     public boolean isLastNameValid(RegisterFragment fragment, String lastname, EditText lnText){
-        if (lastname.length() > 0 && lastname.matches("[a-zA-Z]+"))
+        if (lastname.length() > 0 && lastname.matches("[a-zA-ZæøåÆØÅ]+"))
             return true;
         else{
             Toast.makeText(fragment.getActivity().getApplicationContext(), "Tast inn etternavn" , Toast.LENGTH_SHORT).show();
@@ -37,7 +37,7 @@ public class UserInputValidator {
     }
 
     public boolean isEmailValid(RegisterFragment fragment, String email, EditText emailText) {
-        String expression = "^[\\w\\.-]+@([\\w\\-]+\\.)+[A-Z]{2,4}$";
+        String expression = "^[\\w\\.-]+@([\\w\\-]+\\.)+[A-ZÆØÅ]{2,4}$";
         CharSequence inputStr = email;
 
         Pattern pattern = Pattern.compile(expression, Pattern.CASE_INSENSITIVE);
@@ -66,7 +66,7 @@ public class UserInputValidator {
         if (!(pw.length() < 7))
             isPwLengthOk = true;
         else{
-            Toast.makeText(fragment.getActivity().getApplicationContext(), "Passordet m� best� av minst 7 tegn" , Toast.LENGTH_SHORT).show();
+            Toast.makeText(fragment.getActivity().getApplicationContext(), "Passordet må bestå av minst 7 tegn" , Toast.LENGTH_SHORT).show();
             pwText.requestFocus();
         }
 
@@ -120,7 +120,7 @@ public class UserInputValidator {
         if (readConditions)
             return true;
         else{
-            Toast.makeText(fragment.getActivity().getApplicationContext(), "Du m� godkjenne betingelser for � fortsette" , Toast.LENGTH_SHORT).show();
+            Toast.makeText(fragment.getActivity().getApplicationContext(), "Du må godkjenne betingelser for å fortsette" , Toast.LENGTH_SHORT).show();
             button.requestFocus();
             return false;
         }

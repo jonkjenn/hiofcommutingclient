@@ -87,12 +87,12 @@ public class TabInboxFragment extends Fragment {
                 if ((User.userList != null && ImageHandler.isUserProfilePictureSet() && !Filter.isFilterSet && !User.isUserListFiltered) ||
                         (User.userList != null && ImageHandler.isUserProfilePictureSet() && Filter.isFilterSet && User.isUserListFiltered)) {
                 	Filter f = null;
-                    User.userList = HandleUsers.getAllUsers(getActivity(), userLoggedIn, f);        
+                    User.userList = HandleUsers.getAllUsers(getActivity(), userLoggedIn, f, false);        
                 	newMessage = HandleMessages.getInbox(userLoggedIn.getUserid(), User.userList, getActivity());
                 }
                 else {
                 	Filter f = null;
-                    User.userList = HandleUsers.getAllUsers(getActivity(), userLoggedIn, f);
+                    User.userList = HandleUsers.getAllUsers(getActivity(), userLoggedIn, f, false);
                     
                     // Saving images to cache, setting path to user objects
 //                    for (final User user : User.userList) {

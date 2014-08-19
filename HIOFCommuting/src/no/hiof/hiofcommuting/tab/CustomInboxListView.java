@@ -45,7 +45,7 @@ public class CustomInboxListView extends ArrayAdapter<Inbox>{
 	        
 //	        ImageHandler.setBitmapFromPath(profilePic, sender.getImagePath());
 	
-			name.setText(objects.get(position).getSender().getFirstName());
+			name.setText(objects.get(position).getSender().getFirstName() + " " + objects.get(position).getSender().getSurname());
 			message.setText(objects.get(position).getMessage());
 			date.setText(objects.get(position).getSent());
         }

@@ -41,11 +41,11 @@ public class HandleUsers {
 	private static Bitmap bitmapImageFromFacebook;
 
 	public static List<User> getAllUsers(Context context, User userLoggedIn,
-			Filter filter) {
+			Filter filter, boolean force) {
 		String urlUser = MainActivity.SERVER_URL + "/usr.py?q=allusrs";
 		JSONArray arrayUser = new JsonParser().getJsonArray(urlUser,
 				HandleLogin.getCookie(context));
-		if (userList.isEmpty() || userList.size() == arrayUser.length()) {
+		if (force || userList.isEmpty() || userList.size() == arrayUser.length()) {
 			if (userList.isEmpty())
 				userList.clear();
 			for (int i = 0; i < arrayUser.length(); i++) {

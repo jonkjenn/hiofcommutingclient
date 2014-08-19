@@ -5,6 +5,7 @@ import java.net.HttpCookie;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.net.URLEncoder;
 
 import no.hiof.hiofcommuting.util.HTTPClient;
 
@@ -71,8 +72,13 @@ public class JsonParser {
 	    		HTTPClient.addCookie(cookie);
 	    	}
 	    	
+	    	
 	        URL u = new URL(url);
-	        HttpURLConnection c = HTTPClient.getHttpUrlConnection(u);
+			HttpURLConnection c = (HttpURLConnection) u.openConnection();
+			c.setRequestProperty("Content-Type",
+					"application/json;charset=utf-8");
+			c.setRequestProperty("Connection", "close");
+
 	        int status = c.getResponseCode();
 
 	        switch (status) {

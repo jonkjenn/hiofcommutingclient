@@ -11,7 +11,7 @@
     <string name="fblogin">Facebook test</string>
     <string name="login">Logg inn</string>
     <string name="password">Passord</string>
-    <string name="newuser">Ny bruker?</string>
+    <string name="newuser">Opprett ny bruker</string>
     <string name="forgotpassword">Glemt passord?</string>
     <string name="title_activity_map">MapActivity</string>
     <string name="title_activity_tab_map">TabMap</string>
@@ -28,7 +28,7 @@
     <string name="firstname">Fornavn</string>
     <string name="lastname">Etternavn</string>
     <string name="email">Epost (@hiof.no)</string>
-    <string name="choosepassword">Velg et passord</string>
+    <string name="choosepassword">Velg et passord (minst 7 tegn)</string>
     <string name="repeatpassword">Gjenta passord</string>
     <string name="choosepicture">Velg profilbilde</string>
     <string name="cameraimage">Picture of a camera</string>

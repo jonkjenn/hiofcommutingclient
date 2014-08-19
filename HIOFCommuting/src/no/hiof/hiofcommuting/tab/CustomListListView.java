@@ -54,7 +54,7 @@ public class CustomListListView extends ArrayAdapter<User>{
 
 //        ImageHandler.setBitmapFromPath(profilePic, currentUser.getImagePath());
 
-		nameTxt.setText(currentUser.getFirstName());
+		nameTxt.setText(currentUser.getFirstName() + " " + currentUser.getSurname());
 		DecimalFormat df = new DecimalFormat("0.0");
 		String formattedDistance = df.format(currentUser.getDistance());
 		distanceTxt.setText("Bor " + formattedDistance + " km unna din adresse");

@@ -36,14 +36,27 @@
 
     </LinearLayout>
 
+    <TextView
+        android:id="@+id/newUserTxtBtn"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="113dp"
+        android:gravity="center"
+        android:clickable="true"
+        android:onClick="newUserClicked"
+        android:text="@string/newuser"
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:textColor="@android:color/holo_blue_light"
+        android:textStyle="bold|italic" />
 
     <EditText
         android:id="@+id/login_editText_email"
+        android:layout_below="@id/newUserTxtBtn"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignParentTop="true"
         android:layout_centerHorizontal="true"
-        android:layout_marginTop="113dp"
+        android:layout_marginTop="18dp"
         android:ems="10"
         android:gravity="center"
         android:hint="@string/email"
@@ -70,20 +83,8 @@
         android:hint="@string/password"
         android:inputType="textPassword"/>
 
-    <TextView
-        android:id="@+id/newUserTxtBtn"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/loginButton"
-        android:layout_centerHorizontal="true"
-        android:layout_marginTop="38dp"
-        android:clickable="true"
-        android:onClick="newUserClicked"
-        android:text="@string/newuser"
-        android:textAppearance="?android:attr/textAppearanceMedium"
-        android:textColor="@android:color/holo_blue_light"
-        android:textStyle="bold|italic" />
 
+    <!--
     <TextView
         android:id="@+id/forgotPasswordTxtBtn"
         android:layout_width="wrap_content"
@@ -97,6 +98,7 @@
         android:textAppearance="?android:attr/textAppearanceMedium"
         android:textColor="@android:color/holo_blue_light"
         android:textStyle="bold|italic" />
+    -->
     
 
 
